@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>元宝AI助手</title>
+  <link rel="icon" type="image/png" href="images/logo.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body {
+      background-color: #f0f2f5;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+    .login-container {
+      position: relative;
+      width: 390px;
+      height: 844px;
+    }
+    .login-frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 44px;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+    .all-pages-link {
+      position: absolute;
+      bottom: -40px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 8px 16px;
+      background-color: #0084ff;
+      color: white;
+      border-radius: 20px;
+      text-decoration: none;
+      font-size: 14px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+    .all-pages-link:hover {
+      background-color: #0066cc;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <iframe src="pages/home.html" class="login-frame" title="元宝AI助手"></iframe>
+    <a href="index2.html" class="all-pages-link">
+      <i class="fas fa-th-large mr-2"></i>查看所有页面
+    </a>
+  </div>
+</body>
+</html> 

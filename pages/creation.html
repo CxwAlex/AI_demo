@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>元宝AI助手 - 创作</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/fixes.css">
+  <style>
+    .page-header {
+      padding: 15px;
+      background-color: #fff;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      text-align: center;
+    }
+
+    .page-title {
+      font-size: 18px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    .menu-tabs {
+      display: flex;
+      padding: 0 15px;
+      border-bottom: 1px solid #f0f0f0;
+      background-color: #fff;
+      position: sticky;
+      top: 47px;
+      z-index: 10;
+    }
+
+    .menu-tab {
+      padding: 12px 15px;
+      font-size: 16px;
+      color: #666;
+      position: relative;
+    }
+
+    .menu-tab.active {
+      color: #333;
+      font-weight: 500;
+    }
+
+    .menu-tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 20px;
+      height: 3px;
+      background-color: #333;
+      border-radius: 3px;
+    }
+
+    .search-bar {
+      margin: 15px;
+      padding: 8px 15px;
+      background-color: #f7f7f7;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      color: #999;
+      font-size: 14px;
+    }
+
+    .search-bar i {
+      margin-right: 8px;
+    }
+
+    .tab-content {
+      padding-bottom: 80px;
+    }
+
+    .content-section {
+      display: none;
+    }
+
+    .content-section.active {
+      display: block;
+    }
+
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      padding: 15px;
+    }
+
+    .grid-item {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    
+    .item-card {
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      background-color: #fff;
+      margin-bottom: 5px;
+    }
+    
+    .item-image {
+      position: relative;
+      border-radius: 12px 12px 0 0;
+      overflow: hidden;
+      aspect-ratio: 1;
+    }
+
+    .grid-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .grid-item .overlay {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background-color: rgba(0, 0, 0, 0.6);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 16px;
+      font-size: 14px;
+    }
+    
+    .item-info {
+      display: flex;
+      align-items: center;
+      padding: 8px;
+      font-size: 12px;
+      color: #666;
+    }
+    
+    .creator-avatar {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      margin-right: 6px;
+      background-color: #f0f0f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 10px;
+      color: #666;
+    }
+    
+    .creator-name {
+      margin-right: 6px;
+    }
+
+    .usage-count {
+      margin-left: auto;
+      color: #999;
+    }
+
+    .create-button {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: white;
+      color: #ff6b6b;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 24px;
+      font-size: 16px;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      z-index: 5;
+    }
+
+    .create-button i {
+      margin-right: 8px;
+      color: #ff6b6b;
+    }
+
+    .writing-item {
+      border-bottom: 1px solid #f5f5f5;
+      padding: 15px;
+    }
+
+    .writing-title {
+      font-size: 16px;
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    .writing-desc {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 8px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    
+    /* 写作部分的用户信息样式调整 */
+    .writing-item .user-info {
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="iphone-container" style="overflow: hidden; position: relative;">
+    <!-- 状态栏 -->
+    <div class="status-bar">
+      <div class="status-bar-left">
+        <span class="status-bar-time">10:30</span>
+      </div>
+      <div class="status-bar-right">
+        <i class="fas fa-signal" style="margin-right: 8px;"></i>
+        <i class="fas fa-wifi" style="margin-right: 8px;"></i>
+        <i class="fas fa-battery-three-quarters"></i>
+      </div>
+    </div>
+
+    <!-- 页面头部 -->
+    <div class="page-header">
+      <div class="page-title">创作</div>
+    </div>
+
+    <!-- 菜单切换 -->
+    <div class="menu-tabs">
+      <div class="menu-tab" onclick="switchTab('image')">AI画图</div>
+      <div class="menu-tab active" onclick="switchTab('video')">AI视频</div>
+      <div class="menu-tab" onclick="switchTab('writing')">AI写作</div>
+    </div>
+
+    <!-- 内容区域 -->
+    <div class="tab-content">
+      <!-- AI画图内容 -->
+      <div class="content-section" id="image-content">
+        <div class="grid-container">
+          <div class="grid-item">
+            <div class="item-card">
+              <div class="item-image">
+                <div style="width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1592194996308-7b43878e84a6?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80') center/cover no-repeat;"></div>
+                <span style="position: absolute; bottom: 30px; left: 10px; color: white; font-size: 14px; font-weight: bold;">可爱猫咪</span>
+                <div class="overlay">做同款</div>
+              </div>
+              <div class="item-info">
+                <div class="creator-avatar">D</div>
+                <span class="creator-name">@D立方Lab</span>
+                <div class="usage-count">1335.0万人使用</div>
+              </div>
+            </div>
+          </div>
+          <div class="grid-item">
+            <div class="item-card">
+              <div class="item-image">
+                <div style="width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1548767797-d8c844163c4c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80') center/cover no-repeat;"></div>
+                <span style="position: absolute; bottom: 30px; left: 10px; color: white; font-size: 14px; font-weight: bold;">仓鼠特写</span>
+                <div class="overlay">做同款</div>
+              </div>
+              <div class="item-info">
+                <div class="creator-avatar">仓</div>
+                <span class="creator-name">@仓鼠控</span>
+                <div class="usage-count">58.3万人使用</div>
+              </div>
+            </div>
+          </div>
+          <div class="grid-item">
+            <div class="item-card">
+              <div class="item-image">
+                <div style="width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80') center/cover no-repeat;"></div>
+                <span style="position: absolute; bottom: 30px; left: 10px; color: white; font-size: 14px; font-weight: bold;">童年记忆</span>
+                <div class="overlay">做同款</div>
+              </div>
+              <div class="item-info">
+                <div class="creator-avatar">糖</div>
+                <span class="creator-name">@糖糖</span>
+                <div class="usage-count">373.7万人使用</div>
+              </div>
+            </div>
+          </div>
+          <div class="grid-item">
+            <div class="item-card">
+              <div class="item-image">
+                <div style="width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80') center/cover no-repeat;"></div>
+                <span style="position: absolute; bottom: 30px; left: 10px; color: white; font-size: 14px; font-weight: bold;">工作场景</span>
+                <div class="overlay">做同款</div>
+              </div>
+              <div class="item-info">
+                <div class="creator-avatar">D</div>
+                <span class="creator-name">@D立方Lab</span>
+                <div class="usage-count">1335.0万人使用</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI视频内容 -->
+      <div class="content-section active" id="video-content">
+        <div class="grid-container">
+          <div class="grid-item">
+            <div class="item-card">
+              <div class="item-image">
+                <div style="width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1607462109225-6b64ae2dd3cb?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80') center/cover no-repeat;"></div>
+                <span style="position: absolute; bottom: 30px; left: 10px; color: white; font-size: 14px; font-weight: bold;">猴子玩耍</span>
+                <div class="overlay">做同款</div>
+              </div>
+              <div class="item-info">
+                <div class="creator-avatar">梦</div>
+                <span class="creator-name">@梦已逝</span>
+                <div class="usage-count">40578人使用</div>
+              </div>
+            </div>
+          </div>
+          <div class="grid-item">
+            <div class="item-card">
+              <div class="item-image">
+                <div style="width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1561731216-c3a4d99437d5?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80') center/cover no-repeat;"></div>
+                <span style="position: absolute; bottom: 30px; left: 10px; color: white; font-size: 14px; font-weight: bold;">老虎漫步</span>
+                <div class="overlay">做同款</div>
+              </div>
+              <div class="item-info">
+                <div class="creator-avatar">诺</div>
+                <span class="creator-name">@诺诺</span>
+                <div class="usage-count">688人使用</div>
+              </div>
+            </div>
+          </div>
+          <div class="grid-item">
+            <div class="item-card">
+              <div class="item-image">
+                <div style="width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1516627145497-ae6968895b74?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80') center/cover no-repeat;"></div>
+                <span style="position: absolute; bottom: 30px; left: 10px; color: white; font-size: 14px; font-weight: bold;">儿童笑脸</span>
+                <div class="overlay">做同款</div>
+              </div>
+              <div class="item-info">
+                <div class="creator-avatar">L</div>
+                <span class="creator-name">@LRRRRR</span>
+                <div class="usage-count">297.1万人使用</div>
+              </div>
+            </div>
+          </div>
+          <div class="grid-item">
+            <div class="item-card">
+              <div class="item-image">
+                <div style="width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80') center/cover no-repeat;"></div>
+                <span style="position: absolute; bottom: 30px; left: 10px; color: white; font-size: 14px; font-weight: bold;">职场女性</span>
+                <div class="overlay">做同款</div>
+              </div>
+              <div class="item-info">
+                <div class="creator-avatar">花</div>
+                <span class="creator-name">@花花</span>
+                <div class="usage-count">23217人使用</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI写作内容 -->
+      <div class="content-section" id="writing-content">
+        <div class="writing-item">
+          <div class="writing-title">商业计划书</div>
+          <div class="writing-desc">专业的商业计划书模板，帮助你快速构建完整的商业逻辑和发展规划，吸引投资人的目光。</div>
+          <div class="user-info">
+            <div class="user-avatar">W</div>
+            <span class="creator-name">@文字工作室</span>
+            <div class="usage-count">56.3万人使用</div>
+          </div>
+        </div>
+        <div class="writing-item">
+          <div class="writing-title">情感信件</div>
+          <div class="writing-desc">表达你的真挚情感，无论是告白、道歉还是感谢，都能找到恰当的表达方式。</div>
+          <div class="user-info">
+            <div class="user-avatar">C</div>
+            <span class="creator-name">@词语大师</span>
+            <div class="usage-count">128.5万人使用</div>
+          </div>
+        </div>
+        <div class="writing-item">
+          <div class="writing-title">学术论文</div>
+          <div class="writing-desc">规范的学术论文格式指导，帮助你完成从选题、大纲到正文的全流程写作。</div>
+          <div class="user-info">
+            <div class="user-avatar">A</div>
+            <span class="creator-name">@学术助手</span>
+            <div class="usage-count">75.2万人使用</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 创建按钮 -->
+    <button class="create-button">
+      <i class="fas fa-star"></i>开始创作
+    </button>
+
+    <!-- 底部导航栏 -->
+    <div class="bottom-nav">
+      <a href="home.html" class="nav-item">
+        <i class="fas fa-comment-dots"></i>
+        <span>对话</span>
+      </a>
+      <a href="creation.html" class="nav-item active">
+        <i class="fas fa-edit"></i>
+        <span>创作</span>
+      </a>
+      <a href="application.html" class="nav-item">
+        <i class="fas fa-border-all"></i>
+        <span>应用</span>
+      </a>
+      <a href="profile.html" class="nav-item">
+        <i class="far fa-user"></i>
+        <span>我的</span>
+      </a>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(tabName) {
+      // 隐藏所有内容区域
+      const contentSections = document.querySelectorAll('.content-section');
+      contentSections.forEach(section => {
+        section.classList.remove('active');
+      });
+      
+      // 取消所有标签的活跃状态
+      const tabs = document.querySelectorAll('.menu-tab');
+      tabs.forEach(tab => {
+        tab.classList.remove('active');
+      });
+      
+      // 激活选中的标签和内容
+      document.getElementById(tabName + '-content').classList.add('active');
+      document.querySelector(`.menu-tab[onclick="switchTab('${tabName}')"]`).classList.add('active');
+    }
+    
+    // 页面加载时检查URL参数
+    document.addEventListener('DOMContentLoaded', function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const tab = urlParams.get('tab');
+      if (tab) {
+        switchTab(tab);
+      } else {
+        // 默认显示视频选项卡
+        switchTab('video');
+      }
+    });
+  </script>
+</body>
+</html> 

@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>元宝AI助手 - 阅读助手</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/fixes.css">
+  <style>
+    .reading-header {
+      padding: 16px 20px;
+      background-color: var(--card-color);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .reading-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+    
+    .reading-action {
+      width: 36px;
+      height: 36px;
+      border-radius: 18px;
+      background-color: var(--background-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--text-color);
+      font-size: 16px;
+    }
+    
+    .reading-content {
+      padding: 16px;
+      background-color: var(--background-color);
+      height: calc(100% - 69px);
+      overflow-y: auto;
+      padding-bottom: 83px; /* 为底部导航栏留出空间 */
+    }
+    
+    .upload-section {
+      background-color: var(--card-color);
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    
+    .upload-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 32px;
+      background-color: var(--primary-color);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 28px;
+      margin: 0 auto 16px;
+    }
+    
+    .upload-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text-color);
+    }
+    
+    .upload-desc {
+      font-size: 14px;
+      color: var(--light-text-color);
+      margin-bottom: 16px;
+    }
+    
+    .upload-btn {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 24px;
+      padding: 12px 24px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-block;
+    }
+    
+    .recent-docs {
+      margin-bottom: 24px;
+    }
+    
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: var(--text-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .view-all {
+      font-size: 14px;
+      color: var(--primary-color);
+      font-weight: normal;
+    }
+    
+    .doc-card {
+      background-color: var(--card-color);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .doc-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      background-color: #f0f0f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-right: 16px;
+      font-size: 24px;
+      color: var(--primary-color);
+    }
+    
+    .doc-info {
+      flex: 1;
+    }
+    
+    .doc-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: var(--text-color);
+    }
+    
+    .doc-meta {
+      font-size: 12px;
+      color: var(--light-text-color);
+      display: flex;
+      align-items: center;
+    }
+    
+    .doc-meta i {
+      margin-right: 4px;
+    }
+    
+    .doc-meta span {
+      margin-right: 12px;
+    }
+    
+    .doc-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .doc-action {
+      width: 32px;
+      height: 32px;
+      border-radius: 16px;
+      background-color: var(--background-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--text-color);
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+    
+    .reading-features {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    
+    .feature-card {
+      background-color: var(--card-color);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 24px;
+      background-color: var(--primary-color);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 20px;
+      margin-bottom: 12px;
+    }
+    
+    .feature-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: var(--text-color);
+    }
+    
+    .feature-desc {
+      font-size: 12px;
+      color: var(--light-text-color);
+    }
+  </style>
+</head>
+<body>
+  <div class="iphone-container" style="overflow: hidden; position: relative;">
+    <!-- 状态栏 -->
+    <div class="status-bar">
+      <div class="status-bar-left">
+        <span class="status-bar-time">12:30</span>
+      </div>
+      <div class="status-bar-right">
+        <i class="fas fa-signal mr-1"></i>
+        <i class="fas fa-wifi mx-1"></i>
+        <i class="fas fa-battery-three-quarters ml-1"></i>
+      </div>
+    </div>
+    
+    <!-- 阅读助手内容 -->
+    <div class="content">
+      <!-- 头部 -->
+      <div class="reading-header">
+        <div class="reading-title">阅读助手</div>
+        <div class="reading-action">
+          <i class="fas fa-cog"></i>
+        </div>
+      </div>
+      
+      <!-- 内容区域 -->
+      <div class="reading-content">
+        <!-- 上传区域 -->
+        <div class="upload-section">
+          <div class="upload-icon">
+            <i class="fas fa-file-upload"></i>
+          </div>
+          <div class="upload-title">上传文档</div>
+          <div class="upload-desc">支持PDF、Word、Excel、PPT等多种格式</div>
+          <div class="upload-btn">选择文件</div>
+        </div>
+        
+        <!-- 最近文档 -->
+        <div class="recent-docs">
+          <div class="section-title">
+            最近文档
+            <span class="view-all">查看全部</span>
+          </div>
+          
+          <div class="doc-card">
+            <div class="doc-icon">
+              <i class="fas fa-file-pdf"></i>
+            </div>
+            <div class="doc-info">
+              <div class="doc-title">人工智能研究报告2023.pdf</div>
+              <div class="doc-meta">
+                <i class="fas fa-clock"></i><span>2小时前</span>
+                <i class="fas fa-file-alt"></i><span>15页</span>
+              </div>
+            </div>
+            <div class="doc-actions">
+              <div class="doc-action">
+                <i class="fas fa-magic"></i>
+              </div>
+              <div class="doc-action">
+                <i class="fas fa-ellipsis-v"></i>
+              </div>
+            </div>
+          </div>
+          
+          <div class="doc-card">
+            <div class="doc-icon">
+              <i class="fas fa-file-word"></i>
+            </div>
+            <div class="doc-info">
+              <div class="doc-title">项目计划书.docx</div>
+              <div class="doc-meta">
+                <i class="fas fa-clock"></i><span>昨天</span>
+                <i class="fas fa-file-alt"></i><span>8页</span>
+              </div>
+            </div>
+            <div class="doc-actions">
+              <div class="doc-action">
+                <i class="fas fa-magic"></i>
+              </div>
+              <div class="doc-action">
+                <i class="fas fa-ellipsis-v"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 阅读功能 -->
+        <div class="section-title">阅读功能</div>
+        <div class="reading-features">
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-file-alt"></i>
+            </div>
+            <div class="feature-title">文档摘要</div>
+            <div class="feature-desc">快速提取文档重点内容</div>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-language"></i>
+            </div>
+            <div class="feature-title">文档翻译</div>
+            <div class="feature-desc">支持多语言互译</div>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-project-diagram"></i>
+            </div>
+            <div class="feature-title">思维导图</div>
+            <div class="feature-desc">将文档转为思维导图</div>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-question-circle"></i>
+            </div>
+            <div class="feature-title">文档问答</div>
+            <div class="feature-desc">针对文档内容提问</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 底部导航栏 -->
+    <div class="bottom-nav">
+      <a href="home.html" class="nav-item">
+        <i class="fas fa-comment-dots"></i>
+        <span>对话</span>
+      </a>
+      <a href="creation.html" class="nav-item">
+        <i class="fas fa-edit"></i>
+        <span>创作</span>
+      </a>
+      <a href="application.html" class="nav-item">
+        <i class="fas fa-border-all"></i>
+        <span>应用</span>
+      </a>
+      <a href="profile.html" class="nav-item">
+        <i class="far fa-user"></i>
+        <span>我的</span>
+      </a>
+    </div>
+  </div>
+  
+  <script src="../js/main.js"></script>
+</body>
+</html> 

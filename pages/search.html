@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>元宝AI助手 - 搜索</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/fixes.css">
+  <style>
+    .search-header {
+      padding: 16px 20px;
+      background-color: var(--card-color);
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .search-input-container {
+      display: flex;
+      align-items: center;
+      background-color: var(--background-color);
+      border-radius: 20px;
+      padding: 0 16px;
+    }
+    
+    .search-input {
+      flex: 1;
+      border: none;
+      background-color: transparent;
+      padding: 12px 0;
+      font-size: 16px;
+      outline: none;
+    }
+    
+    .search-icon {
+      color: var(--light-text-color);
+      font-size: 16px;
+      margin-right: 12px;
+    }
+    
+    .voice-icon {
+      color: var(--primary-color);
+      font-size: 18px;
+      margin-left: 12px;
+    }
+    
+    .search-tabs {
+      display: flex;
+      background-color: var(--card-color);
+      border-bottom: 1px solid var(--border-color);
+      overflow-x: auto;
+      white-space: nowrap;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none; /* Firefox */
+      padding: 0 4px;
+      -ms-overflow-style: none; /* IE and Edge */
+    }
+    
+    .search-tabs::-webkit-scrollbar {
+      display: none; /* Chrome, Safari, Opera */
+    }
+    
+    .search-tab {
+      padding: 12px 16px;
+      flex-shrink: 0;
+      font-size: 14px;
+      color: var(--light-text-color);
+      position: relative;
+    }
+    
+    .search-tab.active {
+      color: var(--primary-color);
+      font-weight: 600;
+    }
+    
+    .search-tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 16px;
+      right: 16px;
+      height: 3px;
+      background-color: var(--primary-color);
+      border-radius: 3px 3px 0 0;
+    }
+    
+    .search-content {
+      padding: 16px;
+      background-color: var(--background-color);
+      height: calc(100% - 69px);
+      overflow-y: auto;
+      padding-bottom: 83px; /* 为底部导航栏留出空间 */
+      scrollbar-width: none; /* Firefox */
+      padding: 0 4px;
+      -ms-overflow-style: none; /* IE and Edge */
+    }
+    
+    .search-content::-webkit-scrollbar {
+      display: none; /* Chrome, Safari, Opera */
+    }
+    
+    .search-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--light-text-color);
+      text-align: center;
+      padding: 0 32px;
+    }
+    
+    .placeholder-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      color: var(--primary-color);
+      opacity: 0.7;
+    }
+    
+    .search-result {
+      background-color: var(--card-color);
+      border-radius: 12px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    
+    .result-header {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      flex-shrink: 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .result-source-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 12px;
+      background-color: var(--primary-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-size: 12px;
+      margin-right: 8px;
+    }
+    
+    .result-source {
+      font-size: 14px;
+      font-weight: 600;
+    }
+    
+    .result-time {
+      font-size: 12px;
+      color: var(--light-text-color);
+      margin-left: auto;
+    }
+    
+    .result-content {
+      padding: 16px;
+    }
+    
+    .result-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text-color);
+    }
+    
+    .result-desc {
+      font-size: 14px;
+      color: var(--light-text-color);
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+    
+    .result-image {
+      width: 100%;
+      height: 180px;
+      border-radius: 8px;
+      object-fit: cover;
+      margin-bottom: 12px;
+    }
+    
+    .result-actions {
+      display: flex;
+      justify-content: space-between;
+      border-top: 1px solid var(--border-color);
+      padding-top: 12px;
+    }
+    
+    .result-action {
+      display: flex;
+      align-items: center;
+      color: var(--light-text-color);
+      font-size: 12px;
+    }
+    
+    .result-action i {
+      margin-right: 4px;
+    }
+    
+    .hot-searches {
+      margin-bottom: 24px;
+    }
+    
+    .hot-search-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: var(--text-color);
+    }
+    
+    .hot-search-list {
+      display: flex;
+      flex-wrap: wrap;
+    }
+    
+    .hot-search-item {
+      background-color: var(--card-color);
+      border-radius: 16px;
+      padding: 8px 16px;
+      margin: 0 8px 8px 0;
+      font-size: 14px;
+      color: var(--text-color);
+    }
+    
+    .hot-search-rank {
+      color: var(--primary-color);
+      font-weight: 600;
+      margin-right: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="iphone-container" style="overflow: hidden; position: relative;">
+    <!-- 状态栏 -->
+    <div class="status-bar">
+      <div class="status-bar-left">
+        <span class="status-bar-time">12:30</span>
+      </div>
+      <div class="status-bar-right">
+        <i class="fas fa-signal mr-1"></i>
+        <i class="fas fa-wifi mx-1"></i>
+        <i class="fas fa-battery-three-quarters ml-1"></i>
+      </div>
+    </div>
+    
+    <!-- 搜索页内容 -->
+    <div class="content">
+      <!-- 搜索头部 -->
+      <div class="search-header">
+        <div class="search-input-container">
+          <i class="fas fa-search search-icon"></i>
+          <input type="text" class="search-input" placeholder="搜索或输入网址">
+          <i class="fas fa-microphone voice-icon"></i>
+        </div>
+      </div>
+      
+      <!-- 搜索标签 -->
+      <div class="search-tabs">
+        <div class="search-tab active">综合</div>
+        <div class="search-tab">资讯</div>
+        <div class="search-tab">视频</div>
+        <div class="search-tab">图片</div>
+        <div class="search-tab">公众号</div>
+        <div class="search-tab">小程序</div>
+        <div class="search-tab" style="margin-right: 16px;">知识</div>
+      </div>
+      
+      <!-- 搜索内容 -->
+      <div class="search-content">
+        <!-- 热搜榜 -->
+        <div class="hot-searches">
+          <div class="hot-search-title">热搜榜</div>
+          <div class="hot-search-list">
+            <div class="hot-search-item"><span class="hot-search-rank">1</span>人工智能新突破</div>
+            <div class="hot-search-item"><span class="hot-search-rank">2</span>全球气候变化会议</div>
+            <div class="hot-search-item"><span class="hot-search-rank">3</span>新能源汽车销量</div>
+            <div class="hot-search-item"><span class="hot-search-rank">4</span>数字人民币试点</div>
+            <div class="hot-search-item"><span class="hot-search-rank">5</span>元宇宙发展前景</div>
+            <div class="hot-search-item"><span class="hot-search-rank">6</span>健康生活方式</div>
+          </div>
+        </div>
+        
+        <!-- 搜索结果示例 -->
+        <div class="search-result">
+          <div class="result-header">
+            <div class="result-source-icon">
+              <i class="fas fa-newspaper"></i>
+            </div>
+            <div class="result-source">科技日报</div>
+            <div class="result-time">2小时前</div>
+          </div>
+          <div class="result-content">
+            <div class="result-title">人工智能新突破：大模型在医疗领域的应用</div>
+            <div class="result-desc">近日，多家科技公司发布了针对医疗领域的大模型应用，这些模型在医学影像识别、疾病诊断等方面表现出色，有望大幅提升医疗效率和准确性...</div>
+            <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" alt="AI医疗" class="result-image">
+            <div class="result-actions">
+              <div class="result-action">
+                <i class="fas fa-thumbs-up"></i>3.2k
+              </div>
+              <div class="result-action">
+                <i class="fas fa-comment"></i>568
+              </div>
+              <div class="result-action">
+                <i class="fas fa-share"></i>分享
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="search-result">
+          <div class="result-header">
+            <div class="result-source-icon">
+              <i class="fas fa-video"></i>
+            </div>
+            <div class="result-source">科技视频</div>
+            <div class="result-time">5小时前</div>
+          </div>
+          <div class="result-content">
+            <div class="result-title">大模型技术解析：从GPT到最新技术发展</div>
+            <div class="result-desc">本视频详细解析了从GPT到最新大模型技术的发展历程，包括技术原理、应用场景以及未来发展趋势...</div>
+            <img src="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" alt="AI技术" class="result-image">
+            <div class="result-actions">
+              <div class="result-action">
+                <i class="fas fa-thumbs-up"></i>5.7k
+              </div>
+              <div class="result-action">
+                <i class="fas fa-comment"></i>1.2k
+              </div>
+              <div class="result-action">
+                <i class="fas fa-share"></i>分享
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 底部导航栏 -->
+    <div class="bottom-nav">
+      <a href="home.html" class="nav-item">
+        <i class="fas fa-comment-dots"></i>
+        <span>对话</span>
+      </a>
+      <a href="creation.html" class="nav-item">
+        <i class="fas fa-edit"></i>
+        <span>创作</span>
+      </a>
+      <a href="application.html" class="nav-item active">
+        <i class="fas fa-border-all"></i>
+        <span>应用</span>
+      </a>
+      <a href="profile.html" class="nav-item">
+        <i class="far fa-user"></i>
+        <span>我的</span>
+      </a>
+    </div>
+  </div>
+  
+  <script src="../js/main.js"></script>
+</body>
+</html> 

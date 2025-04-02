@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>元宝AI助手 - 写作助手</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/fixes.css">
+  <style>
+    .writing-header {
+      padding: 16px 20px;
+      background-color: var(--card-color);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .writing-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+    
+    .writing-action {
+      width: 36px;
+      height: 36px;
+      border-radius: 18px;
+      background-color: var(--background-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--text-color);
+      font-size: 16px;
+    }
+    
+    .writing-content {
+      padding: 16px 0 83px 0; /* 顶部和两侧添加内边距，底部保留为导航栏留出空间 */
+      background-color: var(--background-color);
+      height: calc(100% - 69px);
+      overflow-y: auto;
+    }
+    
+    /* 顶部图标区域容器 */
+    .tools-container {
+      background-color: #ffffff;
+      border-radius: 12px;
+      margin: 0 16px 20px 16px;
+      padding: 20px 16px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+    
+    .writing-categories {
+      display: flex;
+      overflow-x: auto;
+      white-space: nowrap;
+      -webkit-overflow-scrolling: touch;
+      padding: 0 0 4px 0;
+    }
+    
+    .writing-category {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-right: 24px;
+    }
+    
+    .writing-category:last-child {
+      margin-right: 8px;
+    }
+    
+    .category-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      background-color: var(--primary-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-size: 24px;
+      margin-bottom: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .category-name {
+      font-size: 12px;
+      color: var(--text-color);
+    }
+    
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0 0 16px 0;
+      color: var(--text-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 16px;
+    }
+    
+    .view-all {
+      font-size: 14px;
+      color: var(--primary-color);
+      font-weight: normal;
+    }
+    
+    .template-card {
+      background-color: var(--card-color);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 0 16px 16px 16px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+    
+    .template-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    
+    .template-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-color);
+    }
+    
+    .template-tag {
+      background-color: rgba(30, 136, 229, 0.1);
+      color: var(--primary-color);
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+    
+    .template-desc {
+      font-size: 14px;
+      color: var(--light-text-color);
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+    
+    .template-actions {
+      display: flex;
+      justify-content: space-between;
+    }
+    
+    .template-btn {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 20px;
+      padding: 8px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .template-stats {
+      display: flex;
+      align-items: center;
+      color: var(--light-text-color);
+      font-size: 12px;
+    }
+    
+    .template-stats i {
+      margin-right: 4px;
+    }
+    
+    .template-stats span {
+      margin-right: 12px;
+    }
+    
+    .recent-writings {
+      margin-bottom: 24px;
+    }
+    
+    .writing-item {
+      background-color: var(--card-color);
+      border-radius: 12px;
+      padding: 16px;
+      margin: 0 16px 12px 16px;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+    
+    .writing-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      background-color: #f0f0f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-right: 16px;
+      font-size: 24px;
+      color: var(--primary-color);
+    }
+    
+    .writing-info {
+      flex: 1;
+    }
+    
+    .writing-item-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: var(--text-color);
+    }
+    
+    .writing-meta {
+      font-size: 12px;
+      color: var(--light-text-color);
+      display: flex;
+      align-items: center;
+    }
+    
+    .writing-meta i {
+      margin-right: 4px;
+    }
+    
+    .writing-meta span {
+      margin-right: 12px;
+    }
+    
+    .writing-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .writing-action-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 16px;
+      background-color: var(--background-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--text-color);
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+    
+    .create-new {
+      position: fixed;
+      bottom: 100px;
+      right: 25px;
+      width: 56px;
+      height: 56px;
+      border-radius: 28px;
+      background-color: var(--primary-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-size: 24px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+  <div class="iphone-container" style="overflow: hidden; position: relative;">
+    <!-- 状态栏 -->
+    <div class="status-bar">
+      <div class="status-bar-left">
+        <span class="status-bar-time">12:30</span>
+      </div>
+      <div class="status-bar-right">
+        <i class="fas fa-signal mr-1"></i>
+        <i class="fas fa-wifi mx-1"></i>
+        <i class="fas fa-battery-three-quarters ml-1"></i>
+      </div>
+    </div>
+    
+    <!-- 写作助手内容 -->
+    <div class="content">
+      <!-- 头部 -->
+      <div class="writing-header">
+        <div class="writing-title">写作助手</div>
+        <div class="writing-action">
+          <i class="fas fa-cog"></i>
+        </div>
+      </div>
+      
+      <!-- 内容区域 -->
+      <div class="writing-content">
+        <!-- 写作分类 -->
+        <div class="tools-container">
+          <div class="writing-categories">
+            <div class="writing-category">
+              <div class="category-icon" style="background-color: #1e88e5;">
+                <i class="fas fa-file-alt"></i>
+              </div>
+              <div class="category-name">文章</div>
+            </div>
+            
+            <div class="writing-category">
+              <div class="category-icon" style="background-color: #43a047;">
+                <i class="fas fa-bullhorn"></i>
+              </div>
+              <div class="category-name">营销</div>
+            </div>
+            
+            <div class="writing-category">
+              <div class="category-icon" style="background-color: #e53935;">
+                <i class="fas fa-code"></i>
+              </div>
+              <div class="category-name">代码</div>
+            </div>
+            
+            <div class="writing-category">
+              <div class="category-icon" style="background-color: #fb8c00;">
+                <i class="fas fa-envelope"></i>
+              </div>
+              <div class="category-name">邮件</div>
+            </div>
+            
+            <div class="writing-category">
+              <div class="category-icon" style="background-color: #8e24aa;">
+                <i class="fas fa-chart-line"></i>
+              </div>
+              <div class="category-name">报告</div>
+            </div>
+            
+            <div class="writing-category">
+              <div class="category-icon" style="background-color: #00acc1;">
+                <i class="fas fa-language"></i>
+              </div>
+              <div class="category-name">翻译</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 热门模板 -->
+        <div class="section-title">
+          热门模板
+          <span class="view-all">查看全部</span>
+        </div>
+        
+        <div class="template-card">
+          <div class="template-header">
+            <div class="template-title">周报生成器</div>
+            <div class="template-tag">热门</div>
+          </div>
+          <div class="template-desc">
+            只需输入本周的工作内容要点，AI将自动生成一份结构清晰、重点突出的周报，让汇报工作更加高效。
+          </div>
+          <div class="template-actions">
+            <div class="template-btn">立即使用</div>
+            <div class="template-stats">
+              <i class="fas fa-star"></i><span>4.9</span>
+              <i class="fas fa-user"></i><span>12.5k</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="template-card">
+          <div class="template-header">
+            <div class="template-title">产品文案优化</div>
+            <div class="template-tag">推荐</div>
+          </div>
+          <div class="template-desc">
+            输入你的产品描述，AI将帮你优化文案，使其更具吸引力和说服力，提高转化率。
+          </div>
+          <div class="template-actions">
+            <div class="template-btn">立即使用</div>
+            <div class="template-stats">
+              <i class="fas fa-star"></i><span>4.8</span>
+              <i class="fas fa-user"></i><span>8.3k</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 最近写作 -->
+        <div class="recent-writings">
+          <div class="section-title">
+            最近写作
+            <span class="view-all">查看全部</span>
+          </div>
+          
+          <div class="writing-item">
+            <div class="writing-icon">
+              <i class="fas fa-file-alt"></i>
+            </div>
+            <div class="writing-info">
+              <div class="writing-item-title">人工智能发展趋势分析</div>
+              <div class="writing-meta">
+                <i class="fas fa-clock"></i><span>1小时前</span>
+                <i class="fas fa-file-alt"></i><span>1200字</span>
+              </div>
+            </div>
+            <div class="writing-actions">
+              <div class="writing-action-btn">
+                <i class="fas fa-edit"></i>
+              </div>
+              <div class="writing-action-btn">
+                <i class="fas fa-ellipsis-v"></i>
+              </div>
+            </div>
+          </div>
+          
+          <div class="writing-item">
+            <div class="writing-icon">
+              <i class="fas fa-envelope"></i>
+            </div>
+            <div class="writing-info">
+              <div class="writing-item-title">客户感谢邮件</div>
+              <div class="writing-meta">
+                <i class="fas fa-clock"></i><span>昨天</span>
+                <i class="fas fa-file-alt"></i><span>350字</span>
+              </div>
+            </div>
+            <div class="writing-actions">
+              <div class="writing-action-btn">
+                <i class="fas fa-edit"></i>
+              </div>
+              <div class="writing-action-btn">
+                <i class="fas fa-ellipsis-v"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 新建按钮 -->
+        <div class="create-new">
+          <i class="fas fa-plus"></i>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 底部导航栏 -->
+    <div class="bottom-nav">
+      <a href="home.html" class="nav-item">
+        <i class="fas fa-comment-dots"></i>
+        <span>对话</span>
+      </a>
+      <a href="creation.html" class="nav-item">
+        <i class="fas fa-edit"></i>
+        <span>创作</span>
+      </a>
+      <a href="application.html" class="nav-item">
+        <i class="fas fa-border-all"></i>
+        <span>应用</span>
+      </a>
+      <a href="profile.html" class="nav-item">
+        <i class="far fa-user"></i>
+        <span>我的</span>
+      </a>
+    </div>
+  </div>
+  
+  <script src="../js/main.js"></script>
+</body>
+</html> 

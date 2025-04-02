@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>元宝AI助手 - 页面模板</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/fixes.css">
+  <style>
+    /* 页面特定样式 */
+    .page-content {
+      padding: 16px;
+      background-color: var(--background-color);
+      height: calc(100% - 69px);
+      overflow-y: auto;
+      padding-bottom: 83px; /* 为底部导航栏留出空间 */
+    }
+  </style>
+</head>
+<body>
+  <div class="iphone-container" style="overflow: hidden; position: relative;">
+    <!-- 状态栏 -->
+    <div class="status-bar">
+      <div class="status-bar-left">
+        <span class="status-bar-time">12:30</span>
+      </div>
+      <div class="status-bar-right">
+        <i class="fas fa-signal mr-1"></i>
+        <i class="fas fa-wifi mx-1"></i>
+        <i class="fas fa-battery-three-quarters ml-1"></i>
+      </div>
+    </div>
+    
+    <!-- 页面内容 -->
+    <div class="content">
+      <!-- 头部 -->
+      <div class="header">
+        页面标题
+      </div>
+      
+      <!-- 内容区域 -->
+      <div class="page-content">
+        <!-- 在这里添加页面内容 -->
+        <div class="card">
+          <h2 class="text-lg font-semibold mb-2">卡片标题</h2>
+          <p class="text-gray-600">卡片内容描述</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 底部导航栏 -->
+    <div class="bottom-nav">
+      <a href="home.html" class="nav-item">
+        <i class="fas fa-comment-dots"></i>
+        <span>对话</span>
+      </a>
+      <a href="creation.html" class="nav-item">
+        <i class="fas fa-edit"></i>
+        <span>创作</span>
+      </a>
+      <a href="application.html" class="nav-item">
+        <i class="fas fa-border-all"></i>
+        <span>应用</span>
+      </a>
+      <a href="profile.html" class="nav-item">
+        <i class="far fa-user"></i>
+        <span>我的</span>
+      </a>
+    </div>
+  </div>
+</body>
+</html> 

@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>元宝AI助手 - 个人中心</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/fixes.css">
+  <style>
+    .profile-header {
+      padding: 16px 20px;
+      background-color: var(--card-color);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .profile-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+    
+    .profile-action {
+      width: 36px;
+      height: 36px;
+      border-radius: 18px;
+      background-color: var(--background-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--text-color);
+      font-size: 16px;
+    }
+    
+    .profile-content {
+      padding: 0;
+      background-color: var(--background-color);
+      height: calc(100% - 69px);
+      overflow-y: auto;
+      padding-bottom: 83px; /* 为底部导航栏留出空间 */
+    }
+    
+    .user-info {
+      background-color: var(--card-color);
+      padding: 24px 20px;
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    
+    .user-avatar {
+      width: 70px;
+      height: 70px;
+      border-radius: 35px;
+      overflow: hidden;
+      margin-right: 16px;
+    }
+    
+    .user-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .user-details {
+      flex: 1;
+    }
+    
+    .user-name {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: var(--text-color);
+    }
+    
+    .user-id {
+      font-size: 14px;
+      color: var(--light-text-color);
+      margin-bottom: 8px;
+    }
+    
+    .user-level {
+      display: inline-block;
+      background-color: rgba(0, 194, 146, 0.1);
+      color: var(--primary-color);
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 12px;
+    }
+    
+    .user-edit {
+      color: var(--light-text-color);
+      font-size: 20px;
+    }
+    
+    .vip-card {
+      background: linear-gradient(135deg, #00c292, #00a278);
+      border-radius: 12px;
+      padding: 16px;
+      margin: 0 16px 16px;
+      color: white;
+    }
+    
+    .vip-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    
+    .vip-title {
+      display: flex;
+      align-items: center;
+    }
+    
+    .vip-icon {
+      font-size: 20px;
+      margin-right: 8px;
+      color: #ffd700;
+    }
+    
+    .vip-name {
+      font-size: 16px;
+      font-weight: 600;
+    }
+    
+    .vip-btn {
+      background-color: rgba(255, 255, 255, 0.2);
+      border-radius: 16px;
+      padding: 4px 12px;
+      font-size: 12px;
+    }
+    
+    .vip-benefits {
+      display: flex;
+      justify-content: space-between;
+    }
+    
+    .vip-benefit {
+      text-align: center;
+      font-size: 12px;
+      opacity: 0.9;
+    }
+    
+    .vip-benefit-icon {
+      font-size: 24px;
+      margin-bottom: 4px;
+    }
+    
+    .menu-section {
+      background-color: var(--card-color);
+      border-radius: 12px;
+      margin: 0 16px 16px;
+      overflow: hidden;
+    }
+    
+    .menu-item {
+      display: flex;
+      align-items: center;
+      padding: 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .menu-item:last-child {
+      border-bottom: none;
+    }
+    
+    .menu-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 18px;
+      background-color: var(--background-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-right: 16px;
+      font-size: 16px;
+    }
+    
+    .menu-title {
+      flex: 1;
+      font-size: 16px;
+      color: var(--text-color);
+    }
+    
+    .menu-arrow {
+      color: var(--light-text-color);
+      font-size: 16px;
+    }
+    
+    .menu-badge {
+      background-color: #f44336;
+      color: white;
+      font-size: 12px;
+      padding: 2px 6px;
+      border-radius: 10px;
+      margin-right: 8px;
+    }
+    
+    .logout-btn {
+      background-color: var(--card-color);
+      border-radius: 12px;
+      margin: 0 16px 16px;
+      padding: 16px;
+      text-align: center;
+      color: #f44336;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    
+    .app-version {
+      text-align: center;
+      font-size: 12px;
+      color: var(--light-text-color);
+      margin-bottom: 24px;
+    }
+  </style>
+</head>
+<body>
+  <div class="iphone-container" style="overflow: hidden; position: relative;">
+    <!-- 状态栏 -->
+    <div class="status-bar">
+      <div class="status-bar-left">
+        <span class="status-bar-time">12:30</span>
+      </div>
+      <div class="status-bar-right">
+        <i class="fas fa-signal mr-1"></i>
+        <i class="fas fa-wifi mx-1"></i>
+        <i class="fas fa-battery-three-quarters ml-1"></i>
+      </div>
+    </div>
+    
+    <!-- 个人中心内容 -->
+    <div class="content">
+      <!-- 头部 -->
+      <div class="profile-header">
+        <div class="profile-title">个人中心</div>
+        <div class="profile-action">
+          <i class="fas fa-qrcode"></i>
+        </div>
+      </div>
+      
+      <!-- 内容区域 -->
+      <div class="profile-content">
+        <!-- 用户信息 -->
+        <div class="user-info">
+          <div class="user-avatar">
+            <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1180&q=80" alt="用户头像">
+          </div>
+          <div class="user-details">
+            <div class="user-name">张小明</div>
+            <div class="user-id">ID: 12345678</div>
+            <div class="user-level">VIP会员</div>
+          </div>
+          <div class="user-edit">
+            <i class="fas fa-chevron-right"></i>
+          </div>
+        </div>
+        
+        <!-- VIP卡片 -->
+        <div class="vip-card">
+          <div class="vip-header">
+            <div class="vip-title">
+              <i class="fas fa-crown vip-icon"></i>
+              <div class="vip-name">元宝VIP会员</div>
+            </div>
+            <div class="vip-btn">立即续费</div>
+          </div>
+          <div class="vip-benefits">
+            <div class="vip-benefit">
+              <div class="vip-benefit-icon"><i class="fas fa-bolt"></i></div>
+              <div>高速响应</div>
+            </div>
+            <div class="vip-benefit">
+              <div class="vip-benefit-icon"><i class="fas fa-infinity"></i></div>
+              <div>无限对话</div>
+            </div>
+            <div class="vip-benefit">
+              <div class="vip-benefit-icon"><i class="fas fa-brain"></i></div>
+              <div>高级模型</div>
+            </div>
+            <div class="vip-benefit">
+              <div class="vip-benefit-icon"><i class="fas fa-shield-alt"></i></div>
+              <div>隐私保护</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 功能菜单 -->
+        <div class="menu-section">
+          <div class="menu-item">
+            <div class="menu-icon" style="color: #1e88e5;">
+              <i class="fas fa-history"></i>
+            </div>
+            <div class="menu-title">历史记录</div>
+            <div class="menu-arrow">
+              <i class="fas fa-chevron-right"></i>
+            </div>
+          </div>
+          <div class="menu-item">
+            <div class="menu-icon" style="color: #43a047;">
+              <i class="fas fa-star"></i>
+            </div>
+            <div class="menu-title">收藏夹</div>
+            <div class="menu-arrow">
+              <i class="fas fa-chevron-right"></i>
+            </div>
+          </div>
+          <div class="menu-item">
+            <div class="menu-icon" style="color: #fb8c00;">
+              <i class="fas fa-bell"></i>
+            </div>
+            <div class="menu-title">消息通知</div>
+            <div class="menu-badge">2</div>
+            <div class="menu-arrow">
+              <i class="fas fa-chevron-right"></i>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 设置菜单 -->
+        <div class="menu-section">
+          <div class="menu-item">
+            <div class="menu-icon" style="color: #8e24aa;">
+              <i class="fas fa-cog"></i>
+            </div>
+            <div class="menu-title">设置</div>
+            <div class="menu-arrow">
+              <i class="fas fa-chevron-right"></i>
+            </div>
+          </div>
+          <div class="menu-item">
+            <div class="menu-icon" style="color: #00acc1;">
+              <i class="fas fa-headset"></i>
+            </div>
+            <div class="menu-title">帮助与反馈</div>
+            <div class="menu-arrow">
+              <i class="fas fa-chevron-right"></i>
+            </div>
+          </div>
+          <div class="menu-item">
+            <div class="menu-icon" style="color: #e53935;">
+              <i class="fas fa-shield-alt"></i>
+            </div>
+            <div class="menu-title">隐私与安全</div>
+            <div class="menu-arrow">
+              <i class="fas fa-chevron-right"></i>
+            </div>
+          </div>
+          <div class="menu-item">
+            <div class="menu-icon" style="color: #757575;">
+              <i class="fas fa-info-circle"></i>
+            </div>
+            <div class="menu-title">关于我们</div>
+            <div class="menu-arrow">
+              <i class="fas fa-chevron-right"></i>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 退出登录 -->
+        <div class="logout-btn">
+          退出登录
+        </div>
+        
+        <!-- 版本信息 -->
+        <div class="app-version">
+          元宝AI助手 v1.0.0
+        </div>
+      </div>
+    </div>
+    
+    <!-- 底部导航栏 -->
+    <div class="bottom-nav">
+      <a href="home.html" class="nav-item">
+        <i class="fas fa-comment-dots"></i>
+        <span>对话</span>
+      </a>
+      <a href="creation.html" class="nav-item">
+        <i class="fas fa-edit"></i>
+        <span>创作</span>
+      </a>
+      <a href="application.html" class="nav-item">
+        <i class="fas fa-border-all"></i>
+        <span>应用</span>
+      </a>
+      <a href="profile.html" class="nav-item active">
+        <i class="far fa-user"></i>
+        <span>我的</span>
+      </a>
+    </div>
+  </div>
+  
+  <script src="../js/main.js"></script>
+</body>
+</html> 

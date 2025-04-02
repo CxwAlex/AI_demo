@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>元宝AI助手 - 原型展示</title>
+  <link rel="icon" type="image/png" href="images/logo.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body {
+      background-color: #f0f2f5;
+      padding: 20px;
+      display: block;
+      min-height: auto;
+    }
+    .prototype-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 30px;
+      margin-top: 30px;
+    }
+    .prototype-title {
+      text-align: center;
+      margin-bottom: 10px;
+      font-weight: 600;
+      color: #333;
+    }
+    .prototype-frame {
+      border: none;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      border-radius: 44px;
+      overflow: hidden;
+    }
+    .back-link {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 8px 16px;
+      background-color: #0084ff;
+      color: white;
+      border-radius: 20px;
+      text-decoration: none;
+      font-size: 14px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+    .back-link:hover {
+      background-color: #0066cc;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+  </style>
+</head>
+<body>
+  <div class="container mx-auto">
+    <header class="text-center py-8">
+      <h1 class="text-4xl font-bold text-blue-600 mb-2">元宝AI助手</h1>
+      <p class="text-xl text-gray-600">高保真原型展示</p>
+      <a href="index.html" class="back-link">
+        <i class="fas fa-arrow-left mr-2"></i>返回登录页
+      </a>
+    </header>
+    
+    <div class="prototype-container">
+      <!-- 1、启动页/登录页 -->
+      <div>
+        <div class="prototype-title">启动页/登录页</div>
+        <iframe src="pages/splash.html" class="prototype-frame" width="390" height="844" title="启动页/登录页"></iframe>
+      </div>
+      
+      <!-- 2、主页/对话页 -->
+      <div>
+        <div class="prototype-title">主页/对话页</div>
+        <iframe src="pages/home.html" class="prototype-frame" width="390" height="844" title="主页/对话页"></iframe>
+      </div>
+      
+      <!-- 3、创作页 -->
+      <div>
+        <div class="prototype-title">创作页</div>
+        <iframe src="pages/creation.html" class="prototype-frame" width="390" height="844" title="创作页"></iframe>
+      </div>
+      
+      <!-- 4、应用页 -->
+      <div>
+        <div class="prototype-title">应用页</div>
+        <iframe src="pages/application.html" class="prototype-frame" width="390" height="844" title="应用页"></iframe>
+      </div>
+      
+      <!-- 5、搜索页 -->
+      <div>
+        <div class="prototype-title">搜索页</div>
+        <iframe src="pages/search.html" class="prototype-frame" width="390" height="844" title="搜索页"></iframe>
+      </div>
+      
+      <!-- 帮我看看页 -->
+      <div>
+        <div class="prototype-title">帮我看看页</div>
+        <iframe src="pages/see_for_me.html" class="prototype-frame" width="390" height="844" title="帮我看看页"></iframe>
+      </div>
+      
+      <!-- 6、阅读助手页 -->
+      <div>
+        <div class="prototype-title">阅读助手页</div>
+        <iframe src="pages/reading.html" class="prototype-frame" width="390" height="844" title="阅读助手页"></iframe>
+      </div>
+      
+      <!-- 7、写作助手页 -->
+      <div>
+        <div class="prototype-title">写作助手页</div>
+        <iframe src="pages/writing.html" class="prototype-frame" width="390" height="844" title="写作助手页"></iframe>
+      </div>
+      
+      <!-- 8、历史记录页 -->
+      <div>
+        <div class="prototype-title">历史记录页</div>
+        <iframe src="pages/history.html" class="prototype-frame" width="390" height="844" title="历史记录页"></iframe>
+      </div>
+      
+      <!-- 9、个人中心页 -->
+      <div>
+        <div class="prototype-title">个人中心页</div>
+        <iframe src="pages/profile.html" class="prototype-frame" width="390" height="844" title="个人中心页"></iframe>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html> 

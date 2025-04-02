@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>元宝AI助手 - AI应用</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/fixes.css">
+  <style>
+    .page-header {
+      display: flex;
+      align-items: center;
+      padding: 15px;
+      background-color: #fff;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .back-button {
+      font-size: 20px;
+      color: #333;
+      margin-right: 15px;
+    }
+
+    .page-title {
+      font-size: 18px;
+      font-weight: 500;
+      color: #333;
+      flex: 1;
+      text-align: center;
+      margin-right: 35px;
+    }
+
+    .search-bar {
+      margin: 15px;
+      padding: 12px 15px;
+      background-color: #f7f7f7;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      color: #999;
+      font-size: 14px;
+    }
+
+    .search-bar i {
+      margin-right: 8px;
+    }
+
+    .category-tags {
+      display: flex;
+      padding: 0 15px 15px;
+      gap: 10px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .category-tag {
+      padding: 6px 12px;
+      border-radius: 15px;
+      font-size: 14px;
+      color: #666;
+      background-color: #fff;
+      border: 1px solid #eee;
+      white-space: nowrap;
+    }
+
+    .category-tag.active {
+      background-color: #f0fff9;
+      color: #00C48C;
+      border-color: #00C48C;
+    }
+
+    .banner {
+      margin: 0 15px 15px;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .banner img {
+      width: 100%;
+      height: auto;
+    }
+
+    .app-list {
+      padding: 0 15px;
+    }
+
+    .app-item {
+      display: flex;
+      align-items: center;
+      padding: 15px 0;
+      border-bottom: 1px solid #f5f5f5;
+    }
+
+    .app-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      margin-right: 12px;
+      overflow: hidden;
+    }
+
+    .app-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .app-info {
+      flex: 1;
+    }
+
+    .app-name {
+      font-size: 16px;
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+    }
+
+    .app-tag {
+      font-size: 12px;
+      color: #666;
+      background-color: #f0f0f0;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-left: 8px;
+    }
+
+    .app-desc {
+      font-size: 13px;
+      color: #999;
+      margin-bottom: 4px;
+    }
+
+    .app-meta {
+      font-size: 12px;
+      color: #999;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .app-meta i {
+      font-size: 12px;
+      margin-right: 4px;
+      flex-shrink: 0;
+    }
+
+    .creator-name {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100px;
+    }
+
+    .usage-count {
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .use-button {
+      padding: 6px 16px;
+      border-radius: 16px;
+      background-color: #fff;
+      border: 1px solid #00C48C;
+      color: #00C48C;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="iphone-container" style="overflow: hidden; position: relative;">
+    <!-- 状态栏 -->
+    <div class="status-bar">
+      <div class="status-bar-left">
+        <span class="status-bar-time">11:39</span>
+      </div>
+      <div class="status-bar-right">
+        <i class="fas fa-signal" style="margin-right: 8px;"></i>
+        <i class="fas fa-wifi" style="margin-right: 8px;"></i>
+        <i class="fas fa-battery-three-quarters"></i>
+      </div>
+    </div>
+
+    <!-- 页面头部 -->
+    <div class="page-header">
+      <a href="javascript:history.back()" class="back-button">
+        <i class="fas fa-chevron-left"></i>
+      </a>
+      <div class="page-title">AI 应用</div>
+    </div>
+
+    <!-- 搜索栏 -->
+    <div class="search-bar">
+      <i class="fas fa-search"></i>
+      <span>搜索应用</span>
+    </div>
+
+    <!-- 分类标签 -->
+    <div class="category-tags">
+      <div class="category-tag active">用过</div>
+      <div class="category-tag">工具提效</div>
+      <div class="category-tag">娱乐休闲</div>
+      <div class="category-tag">角色闲聊</div>
+    </div>
+
+    <!-- 应用列表 -->
+    <div class="app-list">
+      <div class="app-item">
+        <div class="app-icon" style="background-color: #e1f5fe; display: flex; justify-content: center; align-items: center; overflow: hidden;">
+          <div style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;">
+            <i class="fas fa-search" style="font-size: 24px; color: #29b6f6;"></i>
+          </div>
+        </div>
+        <div class="app-info">
+          <div class="app-name">
+            AI搜索
+            <span class="app-tag">官方</span>
+          </div>
+          <div class="app-desc">智能搜索引擎，一键获取你想要的信息</div>
+          <div class="app-meta">
+            <i class="fas fa-user"></i>
+            <span class="creator-name">@官方智能体</span>
+            <i class="fas fa-clock"></i>
+            <span class="usage-count">427.7万次使用</span>
+          </div>
+        </div>
+        <a href="search.html" class="use-button">使用</a>
+      </div>
+
+      <div class="app-item">
+        <div class="app-icon" style="background-color: #e8f5e9; display: flex; justify-content: center; align-items: center; overflow: hidden;">
+          <div style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;">
+            <i class="fas fa-book-reader" style="font-size: 24px; color: #43a047;"></i>
+          </div>
+        </div>
+        <div class="app-info">
+          <div class="app-name">
+            AI阅读
+            <span class="app-tag">官方</span>
+          </div>
+          <div class="app-desc">智能文本分析，帮你理解各种文档内容</div>
+          <div class="app-meta">
+            <i class="fas fa-user"></i>
+            <span class="creator-name">@官方智能体</span>
+            <i class="fas fa-clock"></i>
+            <span class="usage-count">267.3万次使用</span>
+          </div>
+        </div>
+        <a href="reading.html" class="use-button">使用</a>
+      </div>
+
+      <div class="app-item">
+        <div class="app-icon" style="background-color: #fff8e1; display: flex; justify-content: center; align-items: center; overflow: hidden;">
+          <div style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;">
+            <i class="fas fa-pen-fancy" style="font-size: 24px; color: #ffb300;"></i>
+          </div>
+        </div>
+        <div class="app-info">
+          <div class="app-name">
+            AI写作
+            <span class="app-tag">官方</span>
+          </div>
+          <div class="app-desc">智能文案创作，轻松生成各类专业文本</div>
+          <div class="app-meta">
+            <i class="fas fa-user"></i>
+            <span class="creator-name">@官方智能体</span>
+            <i class="fas fa-clock"></i>
+            <span class="usage-count">589.5万次使用</span>
+          </div>
+        </div>
+        <a href="writing.html" class="use-button">使用</a>
+      </div>
+
+      <div class="app-item">
+        <div class="app-icon" style="background-color: #f3e5f5; display: flex; justify-content: center; align-items: center; overflow: hidden;">
+          <div style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;">
+            <i class="fas fa-image" style="font-size: 24px; color: #8e24aa;"></i>
+          </div>
+        </div>
+        <div class="app-info">
+          <div class="app-name">
+            AI画图
+            <span class="app-tag">官方</span>
+          </div>
+          <div class="app-desc">智能图像生成，创造你想要的任何图像</div>
+          <div class="app-meta">
+            <i class="fas fa-user"></i>
+            <span class="creator-name">@D立方Lab</span>
+            <i class="fas fa-clock"></i>
+            <span class="usage-count">1335.0万次使用</span>
+          </div>
+        </div>
+        <a href="creation.html?tab=image" class="use-button">使用</a>
+      </div>
+
+      <div class="app-item">
+        <div class="app-icon" style="background-color: #e3f2fd; display: flex; justify-content: center; align-items: center; overflow: hidden;">
+          <div style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;">
+            <i class="fas fa-eye" style="font-size: 24px; color: #1976d2;"></i>
+          </div>
+        </div>
+        <div class="app-info">
+          <div class="app-name">
+            帮我看看
+            <span class="app-tag">新品</span>
+          </div>
+          <div class="app-desc">多模态视觉助手，帮你识别世界、理解图像</div>
+          <div class="app-meta">
+            <i class="fas fa-user"></i>
+            <span class="creator-name">@视觉实验室</span>
+            <i class="fas fa-clock"></i>
+            <span class="usage-count">78.6万次使用</span>
+          </div>
+        </div>
+        <a href="see_for_me.html" class="use-button">使用</a>
+      </div>
+
+      <div class="app-item">
+        <div class="app-icon" style="background-color: #e3f2fd; display: flex; justify-content: center; align-items: center; overflow: hidden;">
+          <div style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;">
+            <i class="fas fa-video" style="font-size: 24px; color: #1976d2;"></i>
+          </div>
+        </div>
+        <div class="app-info">
+          <div class="app-name">
+            AI视频
+            <span class="app-tag">官方</span>
+          </div>
+          <div class="app-desc">智能视频生成，一键制作精彩视频内容</div>
+          <div class="app-meta">
+            <i class="fas fa-user"></i>
+            <span class="creator-name">@官方智能体</span>
+            <i class="fas fa-clock"></i>
+            <span class="usage-count">735.2万次使用</span>
+          </div>
+        </div>
+        <a href="creation.html" class="use-button">使用</a>
+      </div>
+    </div>
+
+    <!-- 底部导航栏 -->
+    <div class="bottom-nav">
+      <a href="home.html" class="nav-item">
+        <i class="fas fa-comment-dots"></i>
+        <span>对话</span>
+      </a>
+      <a href="creation.html" class="nav-item">
+        <i class="fas fa-edit"></i>
+        <span>创作</span>
+      </a>
+      <a href="application.html" class="nav-item active">
+        <i class="fas fa-border-all"></i>
+        <span>应用</span>
+      </a>
+      <a href="profile.html" class="nav-item">
+        <i class="far fa-user"></i>
+        <span>我的</span>
+      </a>
+    </div>
+  </div>
+</body>
+</html> 

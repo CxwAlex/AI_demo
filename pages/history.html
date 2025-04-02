@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>元宝AI助手 - 历史记录</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/fixes.css">
+  <style>
+    .history-header {
+      padding: 16px 20px;
+      background-color: var(--card-color);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .history-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+    
+    .history-actions {
+      display: flex;
+      align-items: center;
+    }
+    
+    .history-action {
+      width: 36px;
+      height: 36px;
+      border-radius: 18px;
+      background-color: var(--background-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--text-color);
+      font-size: 16px;
+      margin-left: 12px;
+    }
+    
+    .history-content {
+      padding: 16px;
+      background-color: var(--background-color);
+      height: calc(100% - 69px);
+      overflow-y: auto;
+      padding-bottom: 83px; /* 为底部导航栏留出空间 */
+    }
+    
+    .history-search {
+      display: flex;
+      align-items: center;
+      background-color: var(--card-color);
+      border-radius: 20px;
+      padding: 0 16px;
+      margin-bottom: 16px;
+    }
+    
+    .history-search-icon {
+      color: var(--light-text-color);
+      font-size: 16px;
+      margin-right: 12px;
+    }
+    
+    .history-search-input {
+      flex: 1;
+      border: none;
+      background-color: transparent;
+      padding: 12px 0;
+      font-size: 16px;
+      outline: none;
+    }
+    
+    .history-tabs {
+      display: flex;
+      background-color: var(--card-color);
+      border-radius: 12px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    
+    .history-tab {
+      flex: 1;
+      text-align: center;
+      padding: 12px;
+      font-size: 14px;
+      color: var(--light-text-color);
+      position: relative;
+    }
+    
+    .history-tab.active {
+      color: var(--primary-color);
+      font-weight: 600;
+    }
+    
+    .history-tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 25%;
+      right: 25%;
+      height: 3px;
+      background-color: var(--primary-color);
+      border-radius: 3px 3px 0 0;
+    }
+    
+    .history-date {
+      font-size: 14px;
+      color: var(--light-text-color);
+      margin: 20px 0 12px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .history-date::before,
+    .history-date::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background-color: var(--border-color);
+    }
+    
+    .history-date::before {
+      margin-right: 16px;
+    }
+    
+    .history-date::after {
+      margin-left: 16px;
+    }
+    
+    .history-item {
+      background-color: var(--card-color);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    
+    .history-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    
+    .history-item-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-color);
+    }
+    
+    .history-item-time {
+      font-size: 12px;
+      color: var(--light-text-color);
+    }
+    
+    .history-item-content {
+      font-size: 14px;
+      color: var(--light-text-color);
+      margin-bottom: 12px;
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .history-item-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .history-item-tag {
+      background-color: rgba(30, 136, 229, 0.1);
+      color: var(--primary-color);
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+    
+    .history-item-actions {
+      display: flex;
+      align-items: center;
+    }
+    
+    .history-item-action {
+      width: 32px;
+      height: 32px;
+      border-radius: 16px;
+      background-color: var(--background-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--text-color);
+      font-size: 14px;
+      margin-left: 8px;
+    }
+    
+    .empty-history {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--light-text-color);
+      text-align: center;
+      padding: 0 32px;
+    }
+    
+    .empty-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      color: var(--primary-color);
+      opacity: 0.7;
+    }
+    
+    .empty-text {
+      font-size: 16px;
+      margin-bottom: 24px;
+    }
+    
+    .empty-btn {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 24px;
+      padding: 12px 24px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+  <div class="iphone-container" style="overflow: hidden; position: relative;">
+    <!-- 状态栏 -->
+    <div class="status-bar">
+      <div class="status-bar-left">
+        <span class="status-bar-time">12:30</span>
+      </div>
+      <div class="status-bar-right">
+        <i class="fas fa-signal mr-1"></i>
+        <i class="fas fa-wifi mx-1"></i>
+        <i class="fas fa-battery-three-quarters ml-1"></i>
+      </div>
+    </div>
+    
+    <!-- 历史记录内容 -->
+    <div class="content">
+      <!-- 头部 -->
+      <div class="history-header">
+        <div class="history-title">历史记录</div>
+        <div class="history-actions">
+          <div class="history-action">
+            <i class="fas fa-trash-alt"></i>
+          </div>
+          <div class="history-action">
+            <i class="fas fa-ellipsis-h"></i>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 内容区域 -->
+      <div class="history-content">
+        <!-- 搜索框 -->
+        <div class="history-search">
+          <i class="fas fa-search history-search-icon"></i>
+          <input type="text" class="history-search-input" placeholder="搜索历史记录">
+        </div>
+        
+        <!-- 标签页 -->
+        <div class="history-tabs">
+          <div class="history-tab active">全部</div>
+          <div class="history-tab">对话</div>
+          <div class="history-tab">搜索</div>
+          <div class="history-tab">阅读</div>
+          <div class="history-tab">写作</div>
+        </div>
+        
+        <!-- 历史记录列表 -->
+        <div class="history-list">
+          <!-- 今天 -->
+          <div class="history-date">今天</div>
+          
+          <div class="history-item">
+            <div class="history-item-header">
+              <div class="history-item-title">人工智能发展趋势</div>
+              <div class="history-item-time">14:25</div>
+            </div>
+            <div class="history-item-content">
+              人工智能技术正在快速发展，大模型在各个领域的应用越来越广泛。未来几年，我们将看到AI在医疗、教育、金融等行业带来革命性的变化...
+            </div>
+            <div class="history-item-footer">
+              <div class="history-item-tag">对话</div>
+              <div class="history-item-actions">
+                <div class="history-item-action">
+                  <i class="fas fa-star"></i>
+                </div>
+                <div class="history-item-action">
+                  <i class="fas fa-share-alt"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="history-item">
+            <div class="history-item-header">
+              <div class="history-item-title">周报生成</div>
+              <div class="history-item-time">10:18</div>
+            </div>
+            <div class="history-item-content">
+              本周工作内容：1. 完成产品需求文档；2. 参加项目评审会议；3. 优化用户界面设计；4. 修复已知bug...
+            </div>
+            <div class="history-item-footer">
+              <div class="history-item-tag">写作</div>
+              <div class="history-item-actions">
+                <div class="history-item-action">
+                  <i class="fas fa-star"></i>
+                </div>
+                <div class="history-item-action">
+                  <i class="fas fa-share-alt"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 昨天 -->
+          <div class="history-date">昨天</div>
+          
+          <div class="history-item">
+            <div class="history-item-header">
+              <div class="history-item-title">全球气候变化会议</div>
+              <div class="history-item-time">18:45</div>
+            </div>
+            <div class="history-item-content">
+              最新的全球气候变化会议于上周在巴黎举行，与会国家就减排目标达成了新的共识。各国承诺到2030年将碳排放量减少45%...
+            </div>
+            <div class="history-item-footer">
+              <div class="history-item-tag">搜索</div>
+              <div class="history-item-actions">
+                <div class="history-item-action">
+                  <i class="fas fa-star"></i>
+                </div>
+                <div class="history-item-action">
+                  <i class="fas fa-share-alt"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="history-item">
+            <div class="history-item-header">
+              <div class="history-item-title">项目计划书.docx</div>
+              <div class="history-item-time">15:30</div>
+            </div>
+            <div class="history-item-content">
+              文档摘要：本项目计划书详细描述了产品开发的各个阶段，包括需求分析、设计、开发、测试和部署。项目预计在6个月内完成...
+            </div>
+            <div class="history-item-footer">
+              <div class="history-item-tag">阅读</div>
+              <div class="history-item-actions">
+                <div class="history-item-action">
+                  <i class="fas fa-star"></i>
+                </div>
+                <div class="history-item-action">
+                  <i class="fas fa-share-alt"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 更早 -->
+          <div class="history-date">更早</div>
+          
+          <div class="history-item">
+            <div class="history-item-header">
+              <div class="history-item-title">英语口语学习方法</div>
+              <div class="history-item-time">3天前</div>
+            </div>
+            <div class="history-item-content">
+              提高英语口语的有效方法：1. 每天坚持练习；2. 模仿母语者的发音；3. 参加语言交换活动；4. 使用语言学习应用...
+            </div>
+            <div class="history-item-footer">
+              <div class="history-item-tag">对话</div>
+              <div class="history-item-actions">
+                <div class="history-item-action">
+                  <i class="fas fa-star"></i>
+                </div>
+                <div class="history-item-action">
+                  <i class="fas fa-share-alt"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 空状态（默认隐藏） -->
+        <div class="empty-history" style="display: none;">
+          <div class="empty-icon">
+            <i class="fas fa-history"></i>
+          </div>
+          <div class="empty-text">
+            暂无历史记录，开始与元宝AI助手对话吧！
+          </div>
+          <div class="empty-btn" onclick="window.location.href='home.html'">
+            立即开始
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 底部导航栏 -->
+    <div class="bottom-nav">
+      <a href="home.html" class="nav-item">
+        <i class="fas fa-comment-dots"></i>
+        <span>对话</span>
+      </a>
+      <a href="creation.html" class="nav-item">
+        <i class="fas fa-edit"></i>
+        <span>创作</span>
+      </a>
+      <a href="application.html" class="nav-item">
+        <i class="fas fa-border-all"></i>
+        <span>应用</span>
+      </a>
+      <a href="profile.html" class="nav-item">
+        <i class="far fa-user"></i>
+        <span>我的</span>
+      </a>
+    </div>
+  </div>
+  
+  <script src="../js/main.js"></script>
+</body>
+</html> 

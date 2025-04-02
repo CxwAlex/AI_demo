@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>元宝AI助手 - 帮我看看</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/fixes.css">
+  <!-- 添加必要的脚本引用 -->
+  <script src="../js/config.js"></script>
+  <script src="https://gosspublic.alicdn.com/aliyun-oss-sdk-6.17.1.min.js"></script>
+  <style>
+    /* 帮我看看页面特定样式 */
+    .page-content {
+      padding: 0;
+      background-color: var(--background-color);
+      height: calc(100% - 69px);
+      overflow-y: auto;
+      padding-bottom: 83px; /* 为底部导航栏留出空间 */
+      display: flex;
+      flex-direction: column;
+    }
+    
+    /* 场景选择区域 */
+    .scene-selector {
+      display: flex;
+      padding: 12px 0;
+      background-color: #f5f5f5;
+      border-bottom: 1px solid #e0e0e0;
+      overflow-x: auto;
+      white-space: nowrap;
+      -webkit-overflow-scrolling: touch; /* 在iOS上提供平滑滚动 */
+      scrollbar-width: none; /* 隐藏Firefox滚动条 */
+      position: relative;
+    }
+    
+    /* 隐藏Webkit浏览器的滚动条 */
+    .scene-selector::-webkit-scrollbar {
+      display: none;
+    }
+    
+    .scene-button {
+      padding: 8px 16px;
+      border-radius: 20px;
+      margin: 0 6px;
+      font-size: 14px;
+      border: 1px solid #ddd;
+      background-color: #fff;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    
+    /* 第一个按钮的左边距 */
+    .scene-button:first-child {
+      margin-left: 15px;
+    }
+    
+    /* 最后一个按钮的右边距 */
+    .scene-button:last-child {
+      margin-right: 15px;
+    }
+    
+    .scene-button i {
+      margin-right: 4px;
+    }
+    
+    .scene-button.active {
+      background-color: #f0f6ff;
+      border-color: #3b82f6;
+      color: #3b82f6;
+    }
+    
+    /* 摄像头视图区域 */
+    .camera-view {
+      flex: 1;
+      position: relative;
+      background-color: #000;
+      overflow: hidden;
+    }
+    
+    #cameraFeed {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    /* AI分析结果区域 */
+    .ai-analysis {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.4), transparent);
+      color: #fff;
+      padding: 20px 15px;
+      max-height: 40%;
+      overflow-y: auto;
+    }
+    
+    .ai-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .ai-title i {
+      margin-right: 6px;
+    }
+    
+    .ai-message {
+      font-size: 14px;
+      line-height: 1.4;
+      margin-bottom: 15px;
+    }
+    
+    /* 语音交互控制区 */
+    .voice-controls {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .control-button {
+      display: none; /* 隐藏摄像头翻转和闪光灯按钮 */
+      width: 50px;
+      height: 50px;
+      border-radius: 25px;
+      background-color: rgba(255,255,255,0.2);
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 15px;
+      backdrop-filter: blur(4px);
+      color: #fff;
+      font-size: 20px;
+    }
+    
+    .record-button {
+      display: none; /* 隐藏语音按钮 */
+      width: 60px;
+      height: 60px;
+      border-radius: 30px;
+      background-color: rgba(255, 0, 0, 0.7);
+      justify-content: center;
+      align-items: center;
+      margin-top: 10px;
+      color: #fff;
+      font-size: 26px;
+    }
+    
+    .record-button.recording {
+      animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    
+    /* 提示标签 */
+    .status-badge {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background-color: rgba(0,0,0,0.7);
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .status-badge i {
+      margin-right: 5px;
+      color: #f00;
+    }
+    
+    .status-badge.analyzing {
+      background-color: rgba(59, 130, 246, 0.7);
+    }
+    
+    .status-badge.analyzing i {
+      color: #fff;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="iphone-container" style="overflow: hidden; position: relative;">
+    <!-- 状态栏 -->
+    <div class="status-bar">
+      <div class="status-bar-left">
+        <span class="status-bar-time">12:30</span>
+      </div>
+      <div class="status-bar-right">
+        <i class="fas fa-signal"></i>
+        <i class="fas fa-wifi"></i>
+        <i class="fas fa-battery-three-quarters"></i>
+      </div>
+    </div>
+    
+    <!-- 页面内容 -->
+    <div class="content">
+      <!-- 头部 -->
+      <div class="header">
+        <a href="javascript:history.back()" class="back-button">
+          <i class="fas fa-chevron-left"></i>
+        </a>
+        帮我看看
+      </div>
+      
+      <!-- 内容区域 -->
+      <div class="page-content">
+        <!-- 场景选择区域 -->
+        <div class="scene-selector">
+          <div class="scene-button active" data-scene="qa">
+            <i class="fas fa-comments"></i> 你问我答
+          </div>
+          <div class="scene-button" data-scene="continuous">
+            <i class="fas fa-eye"></i> 持续观察
+          </div>
+          <div class="scene-button" data-scene="blind">
+            <i class="fas fa-walking"></i> 盲人出行
+          </div>
+          <div class="scene-button" data-scene="diabetes">
+            <i class="fas fa-utensils"></i> 糖尿病饮食
+          </div>
+        </div>
+        
+        <!-- 摄像头视图区域 -->
+        <div class="camera-view">
+          <video id="cameraFeed" autoplay playsinline></video>
+          
+          <!-- 状态标签 -->
+          <div class="status-badge">
+            <i class="fas fa-circle"></i> 正在录制
+          </div>
+          
+          <!-- 语音控制区 -->
+          <div class="voice-controls">
+            <div class="control-button" id="switchCameraBtn">
+              <i class="fas fa-sync-alt"></i>
+            </div>
+            <div class="control-button" id="flashBtn">
+              <i class="fas fa-bolt"></i>
+            </div>
+            <div class="record-button" id="recordBtn">
+              <i class="fas fa-microphone"></i>
+            </div>
+          </div>
+          
+          <!-- AI分析结果区域 -->
+          <div class="ai-analysis">
+            <div class="ai-title">
+              <i class="fas fa-robot"></i> AI分析结果
+            </div>
+            <div class="ai-message" id="aiMessage">
+              点击下方场景选项开始体验，或直接开始提问...
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 底部导航栏 -->
+    <div class="bottom-nav">
+      <a href="home.html" class="nav-item">
+        <i class="fas fa-comment-dots"></i>
+        <span>对话</span>
+      </a>
+      <a href="creation.html" class="nav-item">
+        <i class="fas fa-edit"></i>
+        <span>创作</span>
+      </a>
+      <a href="application.html" class="nav-item">
+        <i class="fas fa-border-all"></i>
+        <span>应用</span>
+      </a>
+      <a href="profile.html" class="nav-item">
+        <i class="far fa-user"></i>
+        <span>我的</span>
+      </a>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async function() {
+      // 确保配置文件已加载
+      if (typeof API_CONFIG === 'undefined') {
+        console.error('配置文件未加载');
+        return;
+      }
+
+      // 场景切换逻辑
+      const sceneButtons = document.querySelectorAll('.scene-button');
+      const aiMessage = document.getElementById('aiMessage');
+      const statusBadge = document.querySelector('.status-badge');
+      
+      // 添加持续观察相关变量
+      let continuousObservationTimer = null;
+      let isObserving = false;
+      
+      // 添加语音识别相关变量
+      let recognition = null;
+      let isListening = false;
+      let currentQuestion = '';
+      let isAnalyzing = false;
+      
+      // 添加盲人出行场景的计时器变量
+      let blindModeTimer = null;
+      let blindModeStartTime = null;
+      let blindModeInterval = null;
+      
+      // 修改默认场景为 qa
+      let currentScene = 'qa';
+      
+      // 初始化语音识别
+      initSpeechRecognition();
+      
+      // 自动启动问答模式
+      setTimeout(() => {
+        aiMessage.textContent = "已启用你问我答模式。请说出您的问题，我会实时拍照并为您解答。";
+        if (recognition) {
+          try {
+            recognition.start();
+          } catch (error) {
+            console.error('启动语音识别失败:', error);
+          }
+        }
+      }, 1000); // 延迟1秒启动，确保摄像头等资源已就绪
+      
+      // 修改清理场景函数
+      function cleanupCurrentScene() {
+        // 停止语音播报
+        stopSpeaking();
+        
+        // 停止语音识别
+        if (recognition && isListening) {
+          recognition.stop();
+          isListening = false;
+        }
+        
+        // 清理持续观察模式的定时器和状态
+        if (continuousObservationTimer) {
+          clearInterval(continuousObservationTimer);
+          clearTimeout(continuousObservationTimer); // 清理可能存在的超时定时器
+          continuousObservationTimer = null;
+        }
+        isObserving = false;
+        
+        // 清理盲人出行模式的定时器和状态
+        if (blindModeTimer) {
+          clearTimeout(blindModeTimer);
+          blindModeTimer = null;
+        }
+        if (blindModeInterval) {
+          clearInterval(blindModeInterval);
+          blindModeInterval = null;
+        }
+        blindModeStartTime = null;
+        
+        // 重置分析状态
+        isAnalyzing = false;
+        currentQuestion = '';
+        
+        // 重置状态标签
+        statusBadge.classList.remove('analyzing');
+        statusBadge.style.backgroundColor = 'rgba(0,0,0,0.7)';
+        
+        // 取消所有正在进行的fetch请求（如果有的话）
+        // 这里使用 AbortController 来取消请求
+        if (window.activeController) {
+          window.activeController.abort();
+          window.activeController = null;
+        }
+      }
+
+      // 修改场景切换逻辑
+      sceneButtons.forEach(button => {
+        button.addEventListener('click', async function() {
+          const newScene = this.getAttribute('data-scene');
+          
+          // 如果点击的是当前场景，不做任何处理
+          if (newScene === currentScene) {
+            return;
+          }
+          
+          // 清理当前场景
+          cleanupCurrentScene();
+          
+          // 移除之前的激活状态
+          sceneButtons.forEach(btn => btn.classList.remove('active'));
+          
+          // 设置当前按钮为激活状态
+          this.classList.add('active');
+          
+          // 更新当前场景
+          currentScene = newScene;
+          
+          // 根据场景执行相应操作
+          switch (currentScene) {
+            case 'qa':
+              aiMessage.textContent = "已启用你问我答模式。请说出您的问题，我会实时拍照并为您解答。";
+              statusBadge.innerHTML = '<i class="fas fa-microphone"></i> 等待提问...';
+              // 初始化并启动语音识别
+              if (!recognition) {
+                initSpeechRecognition();
+              }
+              try {
+                recognition.start();
+              } catch (error) {
+                console.error('启动语音识别失败:', error);
+                setTimeout(() => {
+                  recognition.start();
+                }, 1000);
+              }
+              break;
+              
+            case 'continuous':
+              aiMessage.textContent = "已启用持续观察模式。我会每20秒拍摄一次照片，持续60秒，并对场景变化进行解读。";
+              statusBadge.innerHTML = '<i class="fas fa-circle"></i> 持续观察中';
+              setTimeout(() => {
+                startContinuousObservation();
+              }, 500);
+              break;
+              
+            case 'blind':
+              aiMessage.textContent = "已启用盲人出行场景。系统将每5秒为您分析一次周围环境，持续30秒。请保持手机摄像头稳定，对准前方路况。";
+              statusBadge.innerHTML = '<i class="fas fa-circle"></i> 盲人出行中';
+              setTimeout(() => {
+                startBlindMode();
+              }, 500);
+              break;
+              
+            case 'diabetes':
+              aiMessage.textContent = "已启用糖尿病饮食场景。请将摄像头对准食物，说出您的问题，我会为您分析食物是否适合食用。";
+              statusBadge.innerHTML = '<i class="fas fa-microphone"></i> 等待提问...';
+              // 初始化并启动语音识别
+              if (!recognition) {
+                initSpeechRecognition();
+              }
+              try {
+                recognition.start();
+              } catch (error) {
+                console.error('启动语音识别失败:', error);
+                setTimeout(() => {
+                  recognition.start();
+                }, 1000);
+              }
+              break;
+          }
+        });
+      });
+      
+      // 摄像头初始化
+      const cameraFeed = document.getElementById('cameraFeed');
+      let cameraStream = null;
+      
+      async function initCamera() {
+        try {
+          const constraints = {
+            video: {
+              facingMode: 'environment'
+            },
+            audio: false
+          };
+          
+          cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
+          cameraFeed.srcObject = cameraStream;
+          
+          statusBadge.innerHTML = '<i class="fas fa-circle"></i> 正在录制';
+          statusBadge.classList.remove('analyzing');
+        } catch (error) {
+          console.error('摄像头访问失败:', error);
+          aiMessage.textContent = "无法访问摄像头。请确保您已授予摄像头权限，并刷新页面重试。";
+        }
+      }
+      
+      // 初始化摄像头
+      initCamera();
+      
+      // 切换摄像头按钮
+      const switchCameraBtn = document.getElementById('switchCameraBtn');
+      switchCameraBtn.addEventListener('click', async function() {
+        if (cameraStream) {
+          // 停止当前摄像头
+          cameraStream.getTracks().forEach(track => track.stop());
+          
+          try {
+            // 切换前后摄像头
+            const currentFacingMode = cameraStream.getVideoTracks()[0].getSettings().facingMode;
+            const newFacingMode = currentFacingMode === 'environment' ? 'user' : 'environment';
+            
+            cameraStream = await navigator.mediaDevices.getUserMedia({
+              video: { facingMode: newFacingMode },
+              audio: false
+            });
+            
+            cameraFeed.srcObject = cameraStream;
+          } catch (error) {
+            console.error('切换摄像头失败:', error);
+          }
+        }
+      });
+      
+      // 闪光灯按钮
+      const flashBtn = document.getElementById('flashBtn');
+      flashBtn.addEventListener('click', function() {
+        // 在真实设备上，这里需要使用MediaTrackCapabilities API来控制闪光灯
+        // 本原型仅做UI演示
+        this.classList.toggle('active');
+        if (this.classList.contains('active')) {
+          this.style.backgroundColor = 'rgba(255,255,255,0.6)';
+        } else {
+          this.style.backgroundColor = 'rgba(255,255,255,0.2)';
+        }
+      });
+      
+      
+      // 停止语音播报函数
+      function stopSpeaking() {
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+        }
+      }
+      
+      // 修改语音播放函数
+      function speakAnswer(text) {
+        // 先停止当前正在播放的语音
+        stopSpeaking();
+        
+        // 在实际应用中，这里应使用Web Speech API或其他TTS服务
+        if ('speechSynthesis' in window) {
+          const speech = new SpeechSynthesisUtterance();
+          speech.text = text;
+          speech.lang = 'zh-CN';
+          speech.rate = 1;
+          speech.pitch = 1;
+          
+          // 添加语音播报完成的回调
+          speech.onend = () => {
+            // 语音播报完成后，如果在问答模式或糖尿病饮食模式下，重新开始监听
+            if ((currentScene === 'qa' || currentScene === 'diabetes') && !isAnalyzing) {
+              setTimeout(() => {
+                try {
+                  recognition.start();
+                } catch (error) {
+                  console.error('重新启动语音识别失败:', error);
+                }
+              }, 500);
+            }
+          };
+          
+          window.speechSynthesis.speak(speech);
+        }
+      }
+      
+      // 修改持续观察功能
+      async function startContinuousObservation() {
+        if (isObserving || currentScene !== 'continuous') return;
+        isObserving = true;
+        
+        // 立即执行一次拍照和分析
+        await captureAndAnalyze();
+        
+        // 设置定时器，每20秒执行一次
+        continuousObservationTimer = setInterval(async () => {
+          if (currentScene !== 'continuous') {
+            clearInterval(continuousObservationTimer);
+            continuousObservationTimer = null;
+            isObserving = false;
+            return;
+          }
+          await captureAndAnalyze();
+        }, 20000);
+        
+        // 60秒后自动停止
+        setTimeout(() => {
+          if (continuousObservationTimer) {
+            clearInterval(continuousObservationTimer);
+            continuousObservationTimer = null;
+            isObserving = false;
+            if (currentScene === 'continuous') {
+              aiMessage.textContent = "持续观察已完成，如需继续使用请重新点击启用。";
+              statusBadge.innerHTML = '<i class="fas fa-circle"></i> 等待启用';
+            }
+          }
+        }, 60000);
+      }
+      
+      // 拍照并分析函数
+      async function captureAndAnalyze() {
+        try {
+          // 获取视频帧
+          const canvas = document.createElement('canvas');
+          const video = document.getElementById('cameraFeed');
+          
+          // 确保视频已经加载并且有有效的尺寸
+          if (video.videoWidth === 0 || video.videoHeight === 0) {
+            throw new Error('视频流未就绪');
+          }
+          
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(video, 0, 0);
+          
+          // 转换为base64，指定格式为image/jpeg
+          const base64Image = canvas.toDataURL('image/jpeg', 0.8);
+          
+          // 上传到OSS
+          const imageUrl = await uploadImageToOSS(base64Image);
+          
+          // 调用视觉模型进行分析
+          const analysis = await analyzeImage(imageUrl);
+          
+          // 更新AI消息
+          updateAIMessage(analysis);
+          
+        } catch (error) {
+          console.error('拍照分析过程出错:', error);
+          aiMessage.textContent = "分析过程中出现错误，将在下一次尝试继续。";
+        }
+      }
+      
+      // 上传图片到OSS
+      async function uploadImageToOSS(base64Image) {
+        try {
+          if (!API_CONFIG || !API_CONFIG.ALIYUN_OSS) {
+            throw new Error('OSS配置未找到');
+          }
+
+          const ossConfig = API_CONFIG.ALIYUN_OSS;
+          if (!ossConfig.REGION || !ossConfig.ACCESS_KEY_ID || !ossConfig.ACCESS_KEY_SECRET || !ossConfig.BUCKET) {
+            throw new Error('OSS配置不完整');
+          }
+
+          const client = new OSS({
+            region: ossConfig.REGION,
+            accessKeyId: ossConfig.ACCESS_KEY_ID,
+            accessKeySecret: ossConfig.ACCESS_KEY_SECRET,
+            bucket: ossConfig.BUCKET,
+            endpoint: ossConfig.ENDPOINT,
+            secure: true
+          });
+
+          // 处理base64数据
+          const base64Pattern = /^data:image\/(png|jpeg|jpg);base64,/;
+          const matches = base64Image.match(base64Pattern);
+          if (!matches) {
+            throw new Error('无效的base64图片格式');
+          }
+          
+          // 移除base64头部信息
+          const base64Data = base64Image.replace(base64Pattern, '');
+          
+          try {
+            // 将base64转换为Buffer
+            const buffer = new Uint8Array(atob(base64Data).split('').map(char => char.charCodeAt(0)));
+            const blob = new Blob([buffer], { type: 'image/jpeg' });
+            
+            // 生成文件名
+            const timestamp = new Date().getTime();
+            const fileName = `continuous/${timestamp}.jpg`;
+            
+            // 上传文件
+            const result = await client.put(fileName, blob, {
+              mime: 'image/jpeg'
+            });
+            
+            return result.url;
+          } catch (error) {
+            console.error('Base64转换错误:', error);
+            throw new Error('图片数据处理失败');
+          }
+        } catch (error) {
+          console.error('OSS上传错误:', error);
+          throw error;
+        }
+      }
+      
+      // 调用视觉模型分析图片
+      async function analyzeImage(imageUrl) {
+        try {
+          if (!API_CONFIG || !API_CONFIG.QWEN_VL) {
+            throw new Error('视觉模型配置未找到');
+          }
+
+          const visionConfig = API_CONFIG.QWEN_VL;
+          if (!visionConfig.API_KEY || !visionConfig.API_URL) {
+            throw new Error('视觉模型配置不完整');
+          }
+
+          const response = await fetch(visionConfig.API_URL, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${visionConfig.API_KEY}`
+            },
+            body: JSON.stringify({
+              model: visionConfig.MODEL,
+              messages: [
+                {
+                  role: 'system',
+                  content: '你是一个简洁的场景描述助手，请用100字以内描述图片的核心信息。'
+                },
+                {
+                  role: 'user',
+                  content: [
+                    {
+                      type: 'text',
+                      text: '简要描述这个场景的核心信息，100字以内。'
+                    },
+                    {
+                      type: 'image_url',
+                      image_url: {
+                        url: imageUrl
+                      }
+                    }
+                  ]
+                }
+              ]
+            })
+          });
+          
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(`视觉模型API调用失败: ${JSON.stringify(errorData)}`);
+          }
+          
+          const data = await response.json();
+          return data.choices[0].message.content;
+          
+        } catch (error) {
+          console.error('视觉模型分析错误:', error);
+          throw error;
+        }
+      }
+      
+      // 更新AI消息
+      function updateAIMessage(analysis) {
+        const timestamp = new Date().toLocaleTimeString();
+        statusBadge.innerHTML = '<i class="fas fa-circle"></i> 持续观察中';
+        aiMessage.textContent = `[${timestamp}] ${analysis}`;
+        
+        // 使用语音播报结果
+        speakAnswer(analysis);
+      }
+      
+      // 初始化语音识别
+      function initSpeechRecognition() {
+        if ('webkitSpeechRecognition' in window) {
+          recognition = new webkitSpeechRecognition();
+          recognition.continuous = false; // 改为非连续模式
+          recognition.interimResults = true;
+          recognition.lang = 'zh-CN';
+          
+          recognition.onstart = () => {
+            isListening = true;
+            statusBadge.innerHTML = '<i class="fas fa-microphone"></i> 正在聆听...';
+            statusBadge.style.backgroundColor = 'rgba(59, 130, 246, 0.7)';
+          };
+          
+          recognition.onend = () => {
+            isListening = false;
+            // 只在非分析状态且没有语音播报时重新开始监听
+            if ((currentScene === 'qa' || currentScene === 'diabetes') && !isAnalyzing && !window.speechSynthesis.speaking) {
+              setTimeout(() => {
+                try {
+                  recognition.start();
+                } catch (error) {
+                  console.error('重新启动语音识别失败:', error);
+                }
+              }, 100);
+            }
+          };
+          
+          recognition.onresult = async (event) => {
+            const result = event.results[event.results.length - 1];
+            if (result.isFinal) {
+              const question = result.item(0).transcript.trim();
+              if (question) {
+                currentQuestion = question;
+                isAnalyzing = true; // 标记正在分析中
+                
+                // 停止当前的语音播报和语音识别
+                stopSpeaking();
+                recognition.stop();
+                
+                try {
+                  // 根据当前场景选择不同的处理方式
+                  if (currentScene === 'diabetes') {
+                    await handleDiabetesQuestion(question);
+                  } else if (currentScene === 'qa') {
+                    await handleQuestionAndAnalyze(question);
+                  }
+                } catch (error) {
+                  console.error('处理问题时出错:', error);
+                  aiMessage.textContent = "处理问题时出现错误，请重新提问。";
+                } finally {
+                  isAnalyzing = false; // 分析完成
+                  // 在语音播报完成后会自动重新开始监听（通过 speech.onend 回调）
+                }
+              }
+            }
+          };
+          
+          recognition.onerror = (event) => {
+            console.error('语音识别错误:', event.error);
+            isListening = false;
+            
+            if (event.error === 'no-speech' || event.error === 'audio-capture') {
+              // 在遇到这些错误时，尝试重新启动
+              if (currentScene === 'qa' && !isAnalyzing) {
+          setTimeout(() => {
+                  try {
+                    recognition.start();
+                  } catch (error) {
+                    console.error('重新启动语音识别失败:', error);
+                  }
+                }, 1000);
+              }
+            }
+          };
+        } else {
+          console.error('浏览器不支持语音识别');
+        }
+      }
+      
+      // 修改问题处理函数
+      async function handleQuestionAndAnalyze(question) {
+        try {
+          isAnalyzing = true;
+        statusBadge.innerHTML = '<i class="fas fa-spinner"></i> 正在分析';
+        statusBadge.classList.add('analyzing');
+          statusBadge.style.backgroundColor = 'rgba(59, 130, 246, 0.7)';
+          
+          // 获取视频帧
+          const canvas = document.createElement('canvas');
+          const video = document.getElementById('cameraFeed');
+          
+          if (video.videoWidth === 0 || video.videoHeight === 0) {
+            throw new Error('视频流未就绪');
+          }
+          
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(video, 0, 0);
+          
+          const base64Image = canvas.toDataURL('image/jpeg', 0.8);
+          const imageUrl = await uploadImageToOSS(base64Image);
+          
+          // 调用视觉模型进行分析，传入用户问题
+          const analysis = await analyzeImageWithQuestion(imageUrl, question);
+          
+          // 更新AI消息并播放语音
+          updateAIMessage(`${analysis}`);
+          
+        } catch (error) {
+          console.error('问答分析过程出错:', error);
+          aiMessage.textContent = "分析过程中出现错误，请重新提问。";
+          // 出错时也要重新开始监听
+          if (currentScene === 'qa') {
+            setTimeout(() => {
+              try {
+                recognition.start();
+              } catch (error) {
+                console.error('重新启动语音识别失败:', error);
+              }
+            }, 500);
+          }
+        } finally {
+          isAnalyzing = false;
+          statusBadge.innerHTML = '<i class="fas fa-microphone"></i> 等待语音播报完成...';
+          statusBadge.classList.remove('analyzing');
+        }
+      }
+      
+      // 使用问题分析图片
+      async function analyzeImageWithQuestion(imageUrl, question) {
+        try {
+          if (!API_CONFIG || !API_CONFIG.QWEN_VL) {
+            throw new Error('视觉模型配置未找到');
+          }
+
+          const visionConfig = API_CONFIG.QWEN_VL;
+          if (!visionConfig.API_KEY || !visionConfig.API_URL) {
+            throw new Error('视觉模型配置不完整');
+          }
+
+          const response = await fetch(visionConfig.API_URL, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${visionConfig.API_KEY}`
+            },
+            body: JSON.stringify({
+              model: visionConfig.MODEL,
+              messages: [
+                {
+                  role: 'system',
+                  content: '你是一个专业的图像分析助手，请根据用户的具体问题分析图片并给出准确的回答。'
+                },
+                {
+                  role: 'user',
+                  content: [
+                    {
+                      type: 'text',
+                      text: question
+                    },
+                    {
+                      type: 'image_url',
+                      image_url: {
+                        url: imageUrl
+                      }
+                    }
+                  ]
+                }
+              ]
+            })
+          });
+          
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(`视觉模型API调用失败: ${JSON.stringify(errorData)}`);
+          }
+          
+          const data = await response.json();
+          return data.choices[0].message.content;
+          
+        } catch (error) {
+          console.error('视觉模型分析错误:', error);
+          throw error;
+        }
+      }
+      
+      // 修改盲人出行模式函数
+      async function startBlindMode() {
+        if (currentScene !== 'blind') return;
+        
+        // 清理之前的定时器
+        if (blindModeTimer) {
+          clearTimeout(blindModeTimer);
+          blindModeTimer = null;
+        }
+        if (blindModeInterval) {
+          clearInterval(blindModeInterval);
+          blindModeInterval = null;
+        }
+
+        // 记录开始时间
+        blindModeStartTime = Date.now();
+
+        // 立即执行一次分析
+        await captureAndAnalyzeForBlind();
+
+        // 设置定时分析
+        blindModeInterval = setInterval(async () => {
+          if (currentScene !== 'blind') {
+            clearInterval(blindModeInterval);
+            blindModeInterval = null;
+            return;
+          }
+          
+          // 检查是否超过30秒
+          if (Date.now() - blindModeStartTime >= 30000) {
+            clearInterval(blindModeInterval);
+            blindModeInterval = null;
+            if (currentScene === 'blind') {
+              aiMessage.textContent = "盲人出行场景已结束，如需继续使用请重新点击启用。";
+              statusBadge.innerHTML = '<i class="fas fa-circle"></i> 等待启用';
+            }
+            return;
+          }
+
+          await captureAndAnalyzeForBlind();
+        }, 5000);
+
+        // 30秒后自动停止
+        blindModeTimer = setTimeout(() => {
+          if (blindModeInterval) {
+            clearInterval(blindModeInterval);
+            blindModeInterval = null;
+          }
+        }, 30000);
+      }
+
+      // 添加盲人场景的拍照分析函数
+      async function captureAndAnalyzeForBlind() {
+        try {
+          statusBadge.innerHTML = '<i class="fas fa-spinner"></i> 正在分析环境';
+          statusBadge.classList.add('analyzing');
+
+          // 获取视频帧
+          const canvas = document.createElement('canvas');
+          const video = document.getElementById('cameraFeed');
+          
+          if (video.videoWidth === 0 || video.videoHeight === 0) {
+            throw new Error('视频流未就绪');
+          }
+          
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(video, 0, 0);
+          
+          const base64Image = canvas.toDataURL('image/jpeg', 0.8);
+          const imageUrl = await uploadImageToOSS(base64Image);
+          
+          // 调用视觉模型进行分析
+          const analysis = await analyzeBlindScene(imageUrl);
+          
+          // 更新AI消息并播放语音
+          const remainingTime = Math.ceil((30000 - (Date.now() - blindModeStartTime)) / 1000);
+          updateAIMessage(`${analysis}`);
+          
+        } catch (error) {
+          console.error('盲人场景分析错误:', error);
+          aiMessage.textContent = "分析过程中出现错误，将在下次继续尝试。";
+        } finally {
+          statusBadge.innerHTML = '<i class="fas fa-circle"></i> 盲人出行中';
+          statusBadge.classList.remove('analyzing');
+        }
+      }
+
+      // 添加盲人场景的分析函数
+      async function analyzeBlindScene(imageUrl) {
+        try {
+          if (!API_CONFIG || !API_CONFIG.QWEN_VL) {
+            throw new Error('视觉模型配置未找到');
+          }
+
+          const visionConfig = API_CONFIG.QWEN_VL;
+          if (!visionConfig.API_KEY || !visionConfig.API_URL) {
+            throw new Error('视觉模型配置不完整');
+          }
+
+          const response = await fetch(visionConfig.API_URL, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${visionConfig.API_KEY}`
+            },
+            body: JSON.stringify({
+              model: visionConfig.MODEL,
+              messages: [
+                {
+                  role: 'system',
+                  content: '你是一个盲人出行助手，请简短描述以下关键信息：1. 前方是否有障碍物（如果有，请描述障碍物是什么和位置） 2. 周围是否有车辆（如果有，请描述车辆的位置） 3. 红绿灯状态（如果有，请描述红绿灯颜色和剩余时间） 4、周围有没有行人（如果有，请描述行人方向）。如果没有识别到障碍物、车辆、红绿灯、行人，则描述该图片，不用解读是否有障碍物、车辆、行人。请用最简短的语言描述，不超过30个字。'
+                },
+                {
+                  role: 'user',
+                  content: [
+                    {
+                      type: 'text',
+                      text: '请按照system提示，分析当前场景。'
+                    },
+                    {
+                      type: 'image_url',
+                      image_url: {
+                        url: imageUrl
+                      }
+                    }
+                  ]
+                }
+              ]
+            })
+          });
+          
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(`视觉模型API调用失败: ${JSON.stringify(errorData)}`);
+          }
+          
+          const data = await response.json();
+          return data.choices[0].message.content;
+          
+        } catch (error) {
+          console.error('视觉模型分析错误:', error);
+          throw error;
+        }
+      }
+      
+      // 添加糖尿病饮食场景的分析函数
+      async function analyzeDiabetesFood(imageUrl, question) {
+        try {
+          if (!API_CONFIG || !API_CONFIG.QWEN_VL) {
+            throw new Error('视觉模型配置未找到');
+          }
+
+          const visionConfig = API_CONFIG.QWEN_VL;
+          if (!visionConfig.API_KEY || !visionConfig.API_URL) {
+            throw new Error('视觉模型配置不完整');
+          }
+
+          const response = await fetch(visionConfig.API_URL, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${visionConfig.API_KEY}`
+            },
+            body: JSON.stringify({
+              model: visionConfig.MODEL,
+              messages: [
+                {
+                  role: 'system',
+                  content: '你是一个专业的糖尿病营养师，请分析图片中的食物和用户提到的食物是否适合糖尿病患者食用。分析要点：1. 识别图中所有食物 2. 每种食物的升糖指数(GI)和建议食用量 3. 食用注意事项 4. 替代建议（如果不适合食用）。如果图片中没有食物，用户也没有问到具体的食物，请直接回复"未识别到食物，请重新拍摄"。'
+                },
+                {
+                  role: 'user',
+                  content: [
+                    {
+                      type: 'text',
+                      text: question
+                    },
+                    {
+                      type: 'image_url',
+                      image_url: {
+                        url: imageUrl
+                      }
+                    }
+                  ]
+                }
+              ]
+            })
+          });
+          
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(`视觉模型API调用失败: ${JSON.stringify(errorData)}`);
+          }
+          
+          const data = await response.json();
+          return data.choices[0].message.content;
+          
+        } catch (error) {
+          console.error('视觉模型分析错误:', error);
+          throw error;
+        }
+      }
+      
+      // 添加糖尿病场景的问题处理函数
+      async function handleDiabetesQuestion(question) {
+        try {
+          statusBadge.innerHTML = '<i class="fas fa-spinner"></i> 正在分析食物';
+          statusBadge.classList.add('analyzing');
+          statusBadge.style.backgroundColor = 'rgba(59, 130, 246, 0.7)';
+          
+          // 获取视频帧
+          const canvas = document.createElement('canvas');
+          const video = document.getElementById('cameraFeed');
+          
+          if (video.videoWidth === 0 || video.videoHeight === 0) {
+            throw new Error('视频流未就绪');
+          }
+          
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(video, 0, 0);
+          
+          const base64Image = canvas.toDataURL('image/jpeg', 0.8);
+          const imageUrl = await uploadImageToOSS(base64Image);
+          
+          // 调用视觉模型进行分析
+          const analysis = await analyzeDiabetesFood(imageUrl, question);
+          
+          // 更新AI消息并播放语音
+          updateAIMessage(`${analysis}`);
+          
+        } catch (error) {
+          console.error('糖尿病饮食分析错误:', error);
+          aiMessage.textContent = "分析过程中出现错误，请重新提问。";
+        } finally {
+          statusBadge.innerHTML = '<i class="fas fa-microphone"></i> 等待提问...';
+          statusBadge.classList.remove('analyzing');
+        }
+      }
+      
+      // 修改页面隐藏时的处理
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+          cleanupCurrentScene();
+        } else {
+          // 页面重新可见时，根据当前场景重新初始化
+          switch (currentScene) {
+            case 'qa':
+            case 'diabetes':
+              if (recognition && !isListening && !isAnalyzing) {
+                try {
+                  recognition.start();
+                } catch (error) {
+                  console.error('重新启动语音识别失败:', error);
+                }
+              }
+              break;
+            case 'blind':
+              startBlindMode();
+              break;
+            case 'continuous':
+              startContinuousObservation();
+              break;
+          }
+        }
+      });
+
+      // 修改页面关闭时的清理
+      window.addEventListener('beforeunload', () => {
+        cleanupCurrentScene();
+      });
+
+      // 修改返回按钮的处理
+      document.querySelector('.back-button').addEventListener('click', () => {
+        cleanupCurrentScene();
+      });
+    });
+  </script>
+</body>
+</html> 

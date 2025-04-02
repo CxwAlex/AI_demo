@@ -1,0 +1,192 @@
+/* 修复样式问题 */
+
+/* 修复手机容器样式 */
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f0f0f0;
+  padding: 0;
+  margin: 0;
+}
+
+.iphone-container {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+/* 修复内容区域样式 */
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 修复聊天容器样式 */
+.chat-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 修复底部工具栏样式 */
+.bottom-toolbar {
+  position: relative;
+  z-index: 5;
+  background-color: var(--card-color);
+  border-top: 1px solid var(--border-color);
+  padding: 10px 15px;
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+}
+
+.toolbar-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 15px;
+  border-radius: 20px;
+  background-color: #f0f0f0;
+  color: #333;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.toolbar-button i {
+  margin-right: 5px;
+}
+
+/* 修复底部导航栏样式 */
+.tab-bar {
+  position: relative;
+  z-index: 10;
+  background-color: var(--card-color);
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 10px 0 25px 0;
+  width: 100%;
+}
+
+.tab-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+  font-size: 12px;
+}
+
+.tab-item.active {
+  color: var(--primary-color);
+}
+
+.tab-icon {
+  font-size: 22px;
+  margin-bottom: 4px;
+}
+
+/* 修复启动页样式 */
+.splash-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 添加或修改元宝原型的修复样式 */
+
+/* 底部状态栏图标间距修复 */
+.status-bar-right {
+  display: flex;
+  align-items: center;
+}
+
+.status-bar-right i {
+  margin-right: 8px;
+}
+
+.status-bar-right i:last-child {
+  margin-right: 0;
+}
+
+/* 聊天页面工具栏修复 */
+.tools-row {
+  display: flex;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 5px 0;
+  gap: 8px;
+  margin-bottom: 8px;
+  scroll-behavior: smooth;
+  scrollbar-width: none; /* Firefox */
+}
+
+.tools-row::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge */
+}
+
+.tool-option {
+  display: flex;
+  align-items: center;
+  padding: 6px 12px;
+  background-color: #f7f7f7;
+  border-radius: 16px;
+  border: 1px solid #e0e0e0;
+  flex-shrink: 0;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.tool-option i {
+  margin-right: 4px;
+  font-size: 14px;
+}
+
+.tool-option span {
+  font-size: 12px;
+}
+
+.tool-option.brain {
+  background-color: #f0fff9;
+  border-color: #00C48C;
+  color: #00C48C;
+}
+
+.tool-option.brain i {
+  color: #00C48C;
+}
+
+.tool-option.active {
+  background-color: #f0f0f0;
+  border-color: #999;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* 特定工具样式 */
+.tool-option:nth-child(3).active {
+  background-color: #f0f6ff;
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+.tool-option:nth-child(4).active {
+  background-color: #fff0f0;
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.tool-option:nth-child(5).active {
+  background-color: #f0f6ff;
+  border-color: #8b5cf6;
+  color: #8b5cf6;
+} 
