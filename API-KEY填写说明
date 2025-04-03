@@ -1,0 +1,2 @@
+API-KEY配置在js/config.js中
+完整使用需要添加腾讯云-混元KEY、Deepseek-KEY、阿里云通义千问的KEY和阿里云OSS的KEY和Secret
